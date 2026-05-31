@@ -1,0 +1,7 @@
+Define the selected word/phrase as it is used in this context from a web article.
+
+Text before: {before}
+Selected: {word}
+Text after: {after}
+
+Write the dictionary entry.

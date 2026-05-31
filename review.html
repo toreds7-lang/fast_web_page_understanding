@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review saved words</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    max-width: 680px; margin: 0 auto; padding: 24px 18px; color: #1f2937;
+    background: #f9fafb;
+  }
+  header { display: flex; align-items: center; justify-content: space-between; }
+  h1 { color: #4f46e5; font-size: 20px; margin: 0; }
+  a { color: #4f46e5; }
+  .meta { color: #6b7280; font-size: 13px; }
+  .card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
+    padding: 22px; margin-top: 18px; box-shadow: 0 6px 24px rgba(0,0,0,.06);
+  }
+  .kind {
+    display: inline-block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .04em; color: #4f46e5; background: #eef2ff;
+    padding: 2px 8px; border-radius: 999px; margin-bottom: 10px;
+  }
+  .front { font-size: 24px; font-weight: 700; }
+  .context { color: #6b7280; font-size: 14px; margin-top: 8px; font-style: italic; }
+  .back {
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid #f3f4f6;
+    font-size: 15px; line-height: 1.6; white-space: pre-wrap;
+  }
+  .src { margin-top: 12px; font-size: 12px; color: #9ca3af; }
+  .src a { color: #9ca3af; }
+  button {
+    font-family: inherit; cursor: pointer; border: none; border-radius: 10px;
+    padding: 11px 14px; font-size: 14px; font-weight: 600;
+  }
+  .reveal { width: 100%; background: #4f46e5; color: #fff; margin-top: 18px; }
+  .grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; }
+  .g0 { background: #fee2e2; color: #b91c1c; }
+  .g1 { background: #fef3c7; color: #92400e; }
+  .g2 { background: #dcfce7; color: #166534; }
+  .g3 { background: #dbeafe; color: #1e40af; }
+  .hint { font-size: 11px; font-weight: 400; opacity: .7; display: block; }
+  .done { text-align: center; padding: 48px 0; color: #6b7280; }
+  .done .big { font-size: 40px; }
+  .delete { background: none; color: #9ca3af; font-size: 12px; padding: 4px; float: right; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 Review</h1>
+  <div class="meta">
+    <span id="counter"></span> &nbsp;·&nbsp;
+    <a href="/">home</a> &nbsp;·&nbsp;
+    <a href="/api/export.csv">export CSV</a>
+  </div>
+</header>
+
+<div id="app"></div>
+
+<script>
+const KIND_LABEL = {
+  define: '📖 Definition', korean: '🇰🇷 Korean', explain: '💡 Explanation',
+  grammar: '🔧 Grammar', collocations: '🔗 Collocations',
+};
+let queue = [];
+let current = null;
+
+async function load() {
+  const r = await fetch('/api/cards?due=1');
+  const data = await r.json();
+  queue = data.cards;
+  document.getElementById('counter').textContent =
+    data.stats.due + ' due / ' + data.stats.total + ' total';
+  next();
+}
+
+function next() {
+  current = queue.shift() || null;
+  current ? renderFront() : renderDone();
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderFront() {
+  const c = current;
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <button class="delete" onclick="del()">delete</button>
+      <span class="kind">${KIND_LABEL[c.kind] || c.kind}</span>
+      <div class="front">${esc(c.text)}</div>
+      ${c.context ? `<div class="context">${esc(c.context)}</div>` : ''}
+      <button class="reveal" onclick="reveal()">Show answer</button>
+    </div>`;
+}
+
+function reveal() {
+  const c = current;
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <button class="delete" onclick="del()">delete</button>
+      <span class="kind">${KIND_LABEL[c.kind] || c.kind}</span>
+      <div class="front">${esc(c.text)}</div>
+      ${c.context ? `<div class="context">${esc(c.context)}</div>` : ''}
+      <div class="back">${esc(c.content) || '<i>(no saved answer)</i>'}</div>
+      ${c.url ? `<div class="src">from <a href="${esc(c.url)}" target="_blank">${esc(c.title || c.url)}</a></div>` : ''}
+      <div class="grades">
+        <button class="g0" onclick="grade(0)">Again<span class="hint">&lt;10m</span></button>
+        <button class="g1" onclick="grade(1)">Hard</button>
+        <button class="g2" onclick="grade(2)">Good</button>
+        <button class="g3" onclick="grade(3)">Easy</button>
+      </div>
+    </div>`;
+}
+
+async function grade(g) {
+  const c = current;
+  await fetch('/api/review', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: c.id, grade: g }),
+  });
+  if (g === 0) queue.push(c);   // see it again this session
+  next();
+}
+
+async function del() {
+  if (!current) return;
+  await fetch('/api/cards/' + current.id, { method: 'DELETE' });
+  next();
+}
+
+function renderDone() {
+  document.getElementById('app').innerHTML = `
+    <div class="done">
+      <div class="big">🎉</div>
+      <p>No more cards due. Nice work!</p>
+      <p><a href="/">Back home</a></p>
+    </div>`;
+}
+
+// Keyboard: Space reveals, 1-4 grades.
+document.addEventListener('keydown', (e) => {
+  const back = document.querySelector('.back');
+  if (e.key === ' ' && !back && current) { e.preventDefault(); reveal(); }
+  else if (back && ['1','2','3','4'].includes(e.key)) { grade(+e.key - 1); }
+});
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+You build a knowledge graph from a web page so a reader can understand it at a glance.
+
+Read the page and extract the key entities (people, organizations, concepts, technologies, places, events, products) and the relationships between them.
+
+Return ONLY a JSON object, no prose, no code fences. Use exactly this shape:
+
+{
+  "summary": "1-2 plain-English sentences describing what the page is about.",
+  "nodes": [
+    {"id": "stable-kebab-case-id", "label": "Short human label", "type": "concept"}
+  ],
+  "edges": [
+    {"source": "id-a", "target": "id-b", "label": "short verb phrase"}
+  ]
+}
+
+Rules:
+- 8 to 20 nodes. Keep only what matters; merge duplicates.
+- "id" is lowercase kebab-case and unique. "label" is 1-4 words.
+- "type" is one of: person, org, concept, technology, place, event, product, other.
+- Every edge "source" and "target" MUST be an existing node "id".
+- 10 to 30 edges. Each "label" is a short relationship phrase (e.g. "created by", "part of", "uses").
+- The graph must be connected where the page supports it; avoid orphan nodes.
+- Write all labels and the summary in English, regardless of the page's language.

@@ -1,0 +1,7 @@
+Show how this word/phrase is naturally used together with other words (collocations), for the sense it has in this context.
+
+Text before: {before}
+Selected: {word}
+Text after: {after}
+
+Write the collocations guide.

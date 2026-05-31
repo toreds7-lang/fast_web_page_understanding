@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge Graph</title>
+<script src="/static/vis-network.min.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #1f2937; background: #f9fafb; overflow: hidden;
+  }
+
+  header {
+    position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 5;
+    display: flex; align-items: center; gap: 14px; padding: 0 18px;
+    background: #fff; border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  }
+  header h1 { color: #4f46e5; font-size: 16px; margin: 0; white-space: nowrap; }
+  header .summary {
+    color: #6b7280; font-size: 13px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+  header a { color: #9ca3af; font-size: 12px; text-decoration: none; }
+  header a:hover { color: #4f46e5; }
+
+  #graph { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; }
+
+  #status {
+    position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    color: #6b7280; font-size: 15px; background: #f9fafb; text-align: center;
+  }
+  #status.hidden { display: none; }
+
+  /* ── Chat popup ───────────────────────────────────────────────────────── */
+  #fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 7;
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: #4f46e5; color: #fff; font-size: 24px;
+    box-shadow: 0 8px 24px rgba(79,70,229,.4);
+  }
+  #chat {
+    position: fixed; right: 0; top: 0; bottom: 0; z-index: 8;
+    width: 380px; min-width: 280px; max-width: 100vw;
+    height: 100vh;
+    display: none; flex-direction: column;
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -8px 0 32px rgba(0,0,0,.18); overflow: hidden;
+  }
+  #chat.open { display: flex; }
+  #chatResize {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+    cursor: ew-resize; z-index: 9; background: transparent;
+  }
+  #chatResize:hover, #chatResize.dragging { background: #a5b4fc; }
+  body.chat-resizing { cursor: ew-resize; user-select: none; }
+  .chat-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0;
+  }
+  .chat-hdr .t { font-weight: 600; color: #4f46e5; font-size: 14px; }
+  .chat-hdr button {
+    border: none; background: none; cursor: pointer; color: #9ca3af;
+    font-size: 18px; line-height: 1; padding: 2px 4px; font-family: inherit;
+  }
+  #log { flex: 1; overflow-y: auto; padding: 14px; }
+  .msg { margin-bottom: 14px; font-size: 14px; line-height: 1.55; }
+  .msg .who {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    color: #9ca3af; margin-bottom: 4px;
+  }
+  .msg.user .bubble {
+    background: #eef2ff; color: #3730a3; border-radius: 12px;
+    padding: 8px 11px; display: inline-block; white-space: pre-wrap;
+  }
+  .msg.bot .bubble { color: #1f2937; }
+  .msg.bot .bubble p { margin: 0 0 6px; }
+  .msg.bot code {
+    background: #f3f4f6; padding: 1px 5px; border-radius: 3px;
+    font-size: 12px; font-family: monospace;
+  }
+  .empty { color: #9ca3af; font-size: 13px; text-align: center; margin-top: 24px; }
+  .chat-in {
+    display: flex; gap: 8px; padding: 12px; border-top: 1px solid #f3f4f6;
+    flex-shrink: 0;
+  }
+  .chat-in input {
+    flex: 1; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none;
+  }
+  .chat-in input:focus { border-color: #a5b4fc; }
+  .chat-in button {
+    border: none; border-radius: 10px; padding: 0 16px; cursor: pointer;
+    background: #4f46e5; color: #fff; font-weight: 600; font-size: 14px;
+    font-family: inherit;
+  }
+  .chat-in button:disabled { opacity: .5; cursor: default; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🕸️ Knowledge Graph</h1>
+  <span class="summary" id="summary"></span>
+  <a id="src" href="#" target="_blank" rel="noopener"></a>
+</header>
+
+<div id="graph"></div>
+<div id="status">Loading graph…</div>
+
+<button id="fab" title="Ask about this page">💬</button>
+
+<div id="chat">
+  <div id="chatResize" title="Drag to resize"></div>
+  <div class="chat-hdr">
+    <span class="t" id="chatTitle">Ask about this page</span>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button id="chatClear" title="Clear messages">🗑</button>
+      <button id="chatClose" title="Close">✕</button>
+    </div>
+  </div>
+  <div id="log"><div class="empty">Click a node to summarize it, or ask a question below.</div></div>
+  <div class="chat-in">
+    <input id="q" type="text" placeholder="Ask anything… (e.g. summarize this page)" autocomplete="off">
+    <button id="send">Send</button>
+  </div>
+</div>
+
+<script>
+const TYPE_COLORS = {
+  person:     { bg: '#fde68a', border: '#d97706' },
+  org:        { bg: '#bfdbfe', border: '#2563eb' },
+  concept:    { bg: '#c7d2fe', border: '#4f46e5' },
+  technology: { bg: '#a7f3d0', border: '#059669' },
+  place:      { bg: '#fbcfe8', border: '#db2777' },
+  event:      { bg: '#fecaca', border: '#dc2626' },
+  product:    { bg: '#ddd6fe', border: '#7c3aed' },
+  other:      { bg: '#e5e7eb', border: '#6b7280' },
+};
+
+const params = new URLSearchParams(location.search);
+const GRAPH_ID = params.get('id');
+
+const $ = (id) => document.getElementById(id);
+let nodeLabels = {};   // id -> label, for click handling
+let busy = false;
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Tiny Markdown → HTML for streamed answers.
+function md(text) {
+  return '<p>' + esc(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^\s*[-*]\s+/gm, '• ')
+    .replace(/\n\n+/g, '</p><p>')
+    .replace(/\n/g, '<br>') + '</p>';
+}
+
+async function loadGraph() {
+  if (!GRAPH_ID) { $('status').textContent = 'No graph id in the URL.'; return; }
+  let data;
+  try {
+    const r = await fetch('/api/graph/' + encodeURIComponent(GRAPH_ID));
+    if (!r.ok) throw new Error(r.status === 404 ? 'Graph not found.' : r.statusText);
+    data = await r.json();
+  } catch (e) {
+    $('status').textContent = '⚠️ ' + e.message;
+    return;
+  }
+
+  const g = data.graph || { nodes: [], edges: [] };
+  $('summary').textContent = g.summary || '';
+  if (data.title) document.title = data.title + ' — Knowledge Graph';
+  if (data.url) {
+    const a = $('src'); a.href = data.url;
+    a.textContent = '↗ source';
+  }
+
+  const nodes = (g.nodes || []).map((n) => {
+    nodeLabels[n.id] = n.label;
+    const c = TYPE_COLORS[n.type] || TYPE_COLORS.other;
+    return {
+      id: n.id, label: n.label,
+      color: { background: c.bg, border: c.border,
+               highlight: { background: c.bg, border: c.border } },
+      font: { color: '#111827', size: 15 },
+      borderWidth: 2, shape: 'box', shapeProperties: { borderRadius: 8 },
+    };
+  });
+  let eid = 0;
+  const edges = (g.edges || []).map((e) => ({
+    id: 'e' + (eid++), from: e.source, to: e.target, label: e.label || '',
+    arrows: 'to', color: { color: '#cbd5e1', highlight: '#4f46e5' },
+    font: { size: 11, color: '#6b7280', strokeWidth: 3, strokeColor: '#f9fafb' },
+    smooth: { type: 'dynamic' },
+  }));
+
+  $('status').classList.add('hidden');
+
+  const network = new vis.Network($('graph'),
+    { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) },
+    {
+      physics: { stabilization: true,
+                 barnesHut: { gravitationalConstant: -8000, springLength: 140 } },
+      interaction: { hover: true, tooltipDelay: 120 },
+      nodes: { margin: 10 },
+    });
+
+  network.on('click', (p) => {
+    if (p.nodes && p.nodes.length) summarizeNode(p.nodes[0]);
+  });
+}
+
+// ── Chat / summary ──────────────────────────────────────────────────────────
+
+function openChat() { $('chat').classList.add('open'); $('q').focus(); }
+$('fab').onclick = openChat;
+$('chatClose').onclick = () => $('chat').classList.remove('open');
+
+// ── Resizable chat width ─────────────────────────────────────────────────────
+(function () {
+  const chat = $('chat'), handle = $('chatResize');
+  const MIN = 280;
+  const maxW = () => Math.min(window.innerWidth, 900);
+  const clamp = (w) => Math.max(MIN, Math.min(w, maxW()));
+
+  const saved = parseInt(localStorage.getItem('chatWidth'), 10);
+  if (saved) chat.style.width = clamp(saved) + 'px';
+
+  let startX = 0, startW = 0;
+
+  function onMove(e) {
+    // Handle is on the left edge; dragging left widens the panel.
+    chat.style.width = clamp(startW + (startX - e.clientX)) + 'px';
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    handle.classList.remove('dragging');
+    document.body.classList.remove('chat-resizing');
+    localStorage.setItem('chatWidth', parseInt(chat.style.width, 10));
+  }
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startX = e.clientX;
+    startW = chat.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+    document.body.classList.add('chat-resizing');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  window.addEventListener('resize', () => {
+    chat.style.width = clamp(chat.getBoundingClientRect().width) + 'px';
+  });
+})();
+
+const EMPTY_HTML =
+  '<div class="empty">Click a node to summarize it, or ask a question below.</div>';
+
+function clearChat() {
+  $('log').innerHTML = EMPTY_HTML;
+}
+$('chatClear').onclick = clearChat;
+
+function clearEmpty() {
+  const e = $('log').querySelector('.empty');
+  if (e) e.remove();
+}
+
+function addMsg(who, html) {
+  clearEmpty();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + who;
+  wrap.innerHTML = '<div class="who">' + (who === 'user' ? 'You' : 'Assistant') +
+                   '</div><div class="bubble">' + html + '</div>';
+  $('log').appendChild(wrap);
+  $('log').scrollTop = $('log').scrollHeight;
+  return wrap.querySelector('.bubble');
+}
+
+async function streamInto(bubble, endpoint, body) {
+  busy = true; $('send').disabled = true;
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      let detail = resp.statusText;
+      try { detail = (await resp.json()).detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let acc = '';
+    bubble.innerHTML = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      acc += dec.decode(value, { stream: true });
+      bubble.innerHTML = md(acc);
+      $('log').scrollTop = $('log').scrollHeight;
+    }
+    if (!acc.trim()) bubble.innerHTML = '<p><em>(no response)</em></p>';
+  } catch (e) {
+    bubble.innerHTML = '<p style="color:#dc2626">⚠️ ' + esc(e.message) +
+      '<br><small>Is the server running with a valid API key?</small></p>';
+  } finally {
+    busy = false; $('send').disabled = false;
+  }
+}
+
+function summarizeNode(id) {
+  if (busy) return;
+  const label = nodeLabels[id] || id;
+  openChat();
+  addMsg('user', esc('🔎 ' + label));
+  const bubble = addMsg('bot', '<span style="color:#9ca3af">Summarizing…</span>');
+  streamInto(bubble, '/api/graph/summary', { id: GRAPH_ID, label });
+}
+
+function ask() {
+  if (busy) return;
+  const q = $('q').value.trim();
+  if (!q) return;
+  $('q').value = '';
+  addMsg('user', esc(q));
+  const bubble = addMsg('bot', '<span style="color:#9ca3af">Thinking…</span>');
+  streamInto(bubble, '/api/graph/chat', { id: GRAPH_ID, question: q });
+}
+
+$('send').onclick = ask;
+$('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+
+loadGraph();
+</script>
+</body>
+</html>
