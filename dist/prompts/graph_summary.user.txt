@@ -1,0 +1,4 @@
+Entity to explain: "[[LABEL]]"
+
+Page content (your only source):
+[[TEXT]]

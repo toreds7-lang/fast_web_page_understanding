@@ -5325,5 +5325,627 @@
       ]
     },
     "created": "2026-05-31T13:40:51"
+  },
+  {
+    "id": "e291f6163b15",
+    "url": "https://github.com/QwenLM/Qwen3-TTS",
+    "title": "QwenLM/Qwen3-TTS: Qwen3-TTS is an open-source series of TTS models developed by the Qwen team at Alibaba Cloud, supporting stable, expressive, and streaming speech generation, free-form voice design, and vivid voice cloning.",
+    "text": "Qwen3-TTS\nPublic\nWatch\n66\n (66)\nFork 1.5k\n Star 11.7k\nQwenLM/Qwen3-TTS\n main\n1 Branch\n0 Tags\nt\nT\nAdd file\nAdd file\nCode\nFolders and files\nName\tLast commit message\tLast commit date\n\nLatest commit\nwangxiongts\nfix finetuning bug\n022e286\n · \nHistory\n13 Commits\n\n.github\n\t\nInitial commit\n\t\n\nassets\n\t\nInitial commit\n\t\n\nexamples\n\t\nInitial commit\n\t\n\nfinetuning\n\t\nfix finetuning bug\n\t\n\nqwen_tts\n\t\nfix: padding value process bug in tokenizer decode\n\t\n\n.gitignore\n\t\nInitial commit\n\t\n\nLICENSE\n\t\nInitial commit\n\t\n\nMANIFEST.in\n\t\nInitial commit\n\t\n\nREADME.md\n\t\nupdate: update readme\n\t\n\npyproject.toml\n\t\nfix: padding value process bug in tokenizer decode\n\t\nRepository files navigation\nREADME\nApache-2.0 license\nQwen3-TTS\n\n  🤗 Hugging Face   |   🤖 ModelScope   |   📑 Blog   |   📑 Paper  \n🖥️ Hugging Face Demo   |    🖥️ ModelScope Demo   |   💬 WeChat (微信)   |   🫨 Discord   |   📑 API\n\nWe release Qwen3-TTS, a series of powerful speech generation capabilities developed by Qwen, offering comprehensive support for voice clone, voice design, ultra-high-quality human-like speech generation, and natural language-based voice control. It provides developers and users with the most extensive set of speech generation features available.\n\nNews\n2026.1.22: 🎉🎉🎉 We have released Qwen3-TTS series (0.6B/1.7B) based on Qwen3-TTS-Tokenizer-12Hz. Please check our blog!\nContents\nOverview\nIntroduction\nModel Architecture\nReleased Models Description and Download\nQuickstart\nEnvironment Setup\nPython Package Usage\nCustom Voice Generation\nVoice Design\nVoice Clone\nVoice Design then Clone\nTokenizer Encode and Decode\nLaunch Local Web UI Demo\nDashScope API Usage\nvLLM Usage\nFine Tuning\nEvaluation\nCitation\nOverview\nIntroduction\n\nQwen3-TTS covers 10 major languages (Chinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, and Italian) as well as multiple dialectal voice profiles to meet global application needs. In addition, the models feature strong contextual understanding, enabling adaptive control of tone, speaking rate, and emotional expression based on instructions and text semantics, and they show markedly improved robustness to noisy input text. Key features:\n\nPowerful Speech Representation: Powered by the self-developed Qwen3-TTS-Tokenizer-12Hz, it achieves efficient acoustic compression and high-dimensional semantic modeling of speech signals. It fully preserves paralinguistic information and acoustic environmental features, enabling high-speed, high-fidelity speech reconstruction through a lightweight non-DiT architecture.\nUniversal End-to-End Architecture: Utilizing a discrete multi-codebook LM architecture, it realizes full-information end-to-end speech modeling. This completely bypasses the information bottlenecks and cascading errors inherent in traditional LM+DiT schemes, significantly enhancing the model’s versatility, generation efficiency, and performance ceiling.\nExtreme Low-Latency Streaming Generation: Based on the innovative Dual-Track hybrid streaming generation architecture, a single model supports both streaming and non-streaming generation. It can output the first audio packet immediately after a single character is input, with end-to-end synthesis latency as low as 97ms, meeting the rigorous demands of real-time interactive scenarios.\nIntelligent Text Understanding and Voice Control: Supports speech generation driven by natural language instructions, allowing for flexible control over multi-dimensional acoustic attributes such as timbre, emotion, and prosody. By deeply integrating text semantic understanding, the model adaptively adjusts tone, rhythm, and emotional expression, achieving lifelike “what you imagine is what you hear” output.\nModel Architecture\n\nReleased Models Description and Download\n\nBelow is an introduction and download information for the Qwen3-TTS models that have already been released. Other models mentioned in the technical report will be released in the near future. Please select and download the model that fits your needs.\n\nTokenizer Name\tDescription\nQwen3-TTS-Tokenizer-12Hz\tThe Qwen3-TTS-Tokenizer-12Hz model which can encode the input speech into codes and decode them back into speech.\nModel\tFeatures\tLanguage Support\tStreaming\tInstruction Control\nQwen3-TTS-12Hz-1.7B-VoiceDesign\tPerforms voice design based on user-provided descriptions.\tChinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, Italian\t✅\t✅\nQwen3-TTS-12Hz-1.7B-CustomVoice\tProvides style control over target timbres via user instructions; supports 9 premium timbres covering various combinations of gender, age, language, and dialect.\tChinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, Italian\t✅\t✅\nQwen3-TTS-12Hz-1.7B-Base\tBase model capable of 3-second rapid voice clone from user audio input; can be used for fine-tuning (FT) other models.\tChinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, Italian\t✅\t\nQwen3-TTS-12Hz-0.6B-CustomVoice\tSupports 9 premium timbres covering various combinations of gender, age, language, and dialect.\tChinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, Italian\t✅\t\nQwen3-TTS-12Hz-0.6B-Base\tBase model capable of 3-second rapid voice clone from user audio input; can be used for fine-tuning (FT) other models.\tChinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish, Italian\t✅\t\n\nDuring model loading in the qwen-tts package or vLLM, model weights will be automatically downloaded based on the model name. However, if your runtime environment is not conducive to downloading weights during execution, you can refer to the following commands to manually download the model weights to a local directory:\n\n# Download through ModelScope (recommended for users in Mainland China)\npip install -U modelscope\nmodelscope download --model Qwen/Qwen3-TTS-Tokenizer-12Hz  --local_dir ./Qwen3-TTS-Tokenizer-12Hz \nmodelscope download --model Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --local_dir ./Qwen3-TTS-12Hz-1.7B-CustomVoice\nmodelscope download --model Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign --local_dir ./Qwen3-TTS-12Hz-1.7B-VoiceDesign\nmodelscope download --model Qwen/Qwen3-TTS-12Hz-1.7B-Base --local_dir ./Qwen3-TTS-12Hz-1.7B-Base\nmodelscope download --model Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice --local_dir ./Qwen3-TTS-12Hz-0.6B-CustomVoice\nmodelscope download --model Qwen/Qwen3-TTS-12Hz-0.6B-Base --local_dir ./Qwen3-TTS-12Hz-0.6B-Base\n\n# Download through Hugging Face\npip install -U \"huggingface_hub[cli]\"\nhuggingface-cli download Qwen/Qwen3-TTS-Tokenizer-12Hz --local-dir ./Qwen3-TTS-Tokenizer-12Hz\nhuggingface-cli download Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --local-dir ./Qwen3-TTS-12Hz-1.7B-CustomVoice\nhuggingface-cli download Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign --local-dir ./Qwen3-TTS-12Hz-1.7B-VoiceDesign\nhuggingface-cli download Qwen/Qwen3-TTS-12Hz-1.7B-Base --local-dir ./Qwen3-TTS-12Hz-1.7B-Base\nhuggingface-cli download Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice --local-dir ./Qwen3-TTS-12Hz-0.6B-CustomVoice\nhuggingface-cli download Qwen/Qwen3-TTS-12Hz-0.6B-Base --local-dir ./Qwen3-TTS-12Hz-0.6B-Base\nQuickstart\nEnvironment Setup\n\nThe easiest way to quickly use Qwen3-TTS is to install the qwen-tts Python package from PyPI. This will pull in the required runtime dependencies and allow you to load any released Qwen3-TTS model. We recommend using a fresh, isolated environment to avoid dependency conflicts with existing packages. You can create a clean Python 3.12 environment like this:\n\nconda create -n qwen3-tts python=3.12 -y\nconda activate qwen3-tts\n\nthen run:\n\npip install -U qwen-tts\n\nIf you want to develop or modify the code locally, install from source in editable mode.\n\ngit clone https://github.com/QwenLM/Qwen3-TTS.git\ncd Qwen3-TTS\npip install -e .\n\nAdditionally, we recommend using FlashAttention 2 to reduce GPU memory usage.\n\npip install -U flash-attn --no-build-isolation\n\nIf your machine has less than 96GB of RAM and lots of CPU cores, run:\n\nMAX_JOBS=4 pip install -U flash-attn --no-build-isolation\n\nAlso, you should have hardware that is compatible with FlashAttention 2. Read more about it in the official documentation of the FlashAttention repository. FlashAttention 2 can only be used when a model is loaded in torch.float16 or torch.bfloat16.\n\nPython Package Usage\n\nAfter installation, you can import Qwen3TTSModel to run custom voice TTS, voice design, and voice clone. The model weights can be specified either as a Hugging Face model id (recommended) or as a local directory path you downloaded. For all the generate_* functions below, besides the parameters shown and explicitly documented, you can also pass generation kwargs supported by Hugging Face Transformers model.generate, e.g., max_new_tokens, top_p, etc.\n\nCustom Voice Generate\n\nFor custom voice models (Qwen3-TTS-12Hz-1.7B/0.6B-CustomVoice), you just need to call generate_custom_voice, passing a single string or a batch list, along with language, speaker, and optional instruct. You can also call model.get_supported_speakers() and model.get_supported_languages() to see which speakers and languages the current model supports.\n\nimport torch\nimport soundfile as sf\nfrom qwen_tts import Qwen3TTSModel\n\nmodel = Qwen3TTSModel.from_pretrained(\n    \"Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice\",\n    device_map=\"cuda:0\",\n    dtype=torch.bfloat16,\n    attn_implementation=\"flash_attention_2\",\n)\n\n# single inference\nwavs, sr = model.generate_custom_voice(\n    text=\"其实我真的有发现，我是一个特别善于观察别人情绪的人。\",\n    language=\"Chinese\", # Pass `Auto` (or omit) for auto language adaptive; if the target language is known, set it explicitly.\n    speaker=\"Vivian\",\n    instruct=\"用特别愤怒的语气说\", # Omit if not needed.\n)\nsf.write(\"output_custom_voice.wav\", wavs[0], sr)\n\n# batch inference\nwavs, sr = model.generate_custom_voice(\n    text=[\n        \"其实我真的有发现，我是一个特别善于观察别人情绪的人。\", \n        \"She said she would be here by noon.\"\n    ],\n    language=[\"Chinese\", \"English\"],\n    speaker=[\"Vivian\", \"Ryan\"],\n    instruct=[\"\", \"Very happy.\"]\n)\nsf.write(\"output_custom_voice_1.wav\", wavs[0], sr)\nsf.write(\"output_custom_voice_2.wav\", wavs[1], sr)\n\nFor Qwen3-TTS-12Hz-1.7B/0.6B-CustomVoice models, the supported speaker list and speaker descriptions are provided below. We recommend using each speaker’s native language for the best quality. Of course, each speaker can speak any language supported by the model.\n\nSpeaker\tVoice Description\tNative language\nVivian\tBright, slightly edgy young female voice.\tChinese\nSerena\tWarm, gentle young female voice.\tChinese\nUncle_Fu\tSeasoned male voice with a low, mellow timbre.\tChinese\nDylan\tYouthful Beijing male voice with a clear, natural timbre.\tChinese (Beijing Dialect)\nEric\tLively Chengdu male voice with a slightly husky brightness.\tChinese (Sichuan Dialect)\nRyan\tDynamic male voice with strong rhythmic drive.\tEnglish\nAiden\tSunny American male voice with a clear midrange.\tEnglish\nOno_Anna\tPlayful Japanese female voice with a light, nimble timbre.\tJapanese\nSohee\tWarm Korean female voice with rich emotion.\tKorean\nVoice Design\n\nFor the voice design model (Qwen3-TTS-12Hz-1.7B-VoiceDesign), you can use generate_voice_design to provide the target text and a natural-language instruct description.\n\nimport torch\nimport soundfile as sf\nfrom qwen_tts import Qwen3TTSModel\n\nmodel = Qwen3TTSModel.from_pretrained(\n    \"Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign\",\n    device_map=\"cuda:0\",\n    dtype=torch.bfloat16,\n    attn_implementation=\"flash_attention_2\",\n)\n\n# single inference\nwavs, sr = model.generate_voice_design(\n    text=\"哥哥，你回来啦，人家等了你好久好久了，要抱抱！\",\n    language=\"Chinese\",\n    instruct=\"体现撒娇稚嫩的萝莉女声，音调偏高且起伏明显，营造出黏人、做作又刻意卖萌的听觉效果。\",\n)\nsf.write(\"output_voice_design.wav\", wavs[0], sr)\n\n# batch inference\nwavs, sr = model.generate_voice_design(\n    text=[\n      \"哥哥，你回来啦，人家等了你好久好久了，要抱抱！\",\n      \"It's in the top drawer... wait, it's empty? No way, that's impossible! I'm sure I put it there!\"\n    ],\n    language=[\"Chinese\", \"English\"],\n    instruct=[\n      \"体现撒娇稚嫩的萝莉女声，音调偏高且起伏明显，营造出黏人、做作又刻意卖萌的听觉效果。\",\n      \"Speak in an incredulous tone, but with a hint of panic beginning to creep into your voice.\"\n    ]\n)\nsf.write(\"output_voice_design_1.wav\", wavs[0], sr)\nsf.write(\"output_voice_design_2.wav\", wavs[1], sr)\nVoice Clone\n\nFor the voice clone model (Qwen3-TTS-12Hz-1.7B/0.6B-Base), to clone a voice and synthesize new content, you just need to provide a reference audio clip (ref_audio) along with its transcript (ref_text). ref_audio can be a local file path, a URL, a base64 string, or a (numpy_array, sample_rate) tuple. If you set x_vector_only_mode=True, only the speaker embedding is used so ref_text is not required, but cloning quality may be reduced.\n\nimport torch\nimport soundfile as sf\nfrom qwen_tts import Qwen3TTSModel\n\nmodel = Qwen3TTSModel.from_pretrained(\n    \"Qwen/Qwen3-TTS-12Hz-1.7B-Base\",\n    device_map=\"cuda:0\",\n    dtype=torch.bfloat16,\n    attn_implementation=\"flash_attention_2\",\n)\n\nref_audio = \"https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen3-TTS-Repo/clone.wav\"\nref_text  = \"Okay. Yeah. I resent you. I love you. I respect you. But you know what? You blew it! And thanks to you.\"\n\nwavs, sr = model.generate_voice_clone(\n    text=\"I am solving the equation: x = [-b ± √(b²-4ac)] / 2a? Nobody can — it's a disaster (◍•͈⌔•͈◍), very sad!\",\n    language=\"English\",\n    ref_audio=ref_audio,\n    ref_text=ref_text,\n)\nsf.write(\"output_voice_clone.wav\", wavs[0], sr)\n\nIf you need to reuse the same reference prompt across multiple generations (to avoid recomputing prompt features), build it once with create_voice_clone_prompt and pass it via voice_clone_prompt.\n\nprompt_items = model.create_voice_clone_prompt(\n    ref_audio=ref_audio,\n    ref_text=ref_text,\n    x_vector_only_mode=False,\n)\nwavs, sr = model.generate_voice_clone(\n    text=[\"Sentence A.\", \"Sentence B.\"],\n    language=[\"English\", \"English\"],\n    voice_clone_prompt=prompt_items,\n)\nsf.write(\"output_voice_clone_1.wav\", wavs[0], sr)\nsf.write(\"output_voice_clone_2.wav\", wavs[1], sr)\n\nFor more examples of reusable voice clone prompts, batch cloning, and batch inference, please refer to the example codes. With those examples and the generate_voice_clone function description, you can explore more advanced usage patterns.\n\nVoice Design then Clone\n\nIf you want a designed voice that you can reuse like a cloned speaker, a practical workflow is: (1) use the VoiceDesign model to synthesize a short reference clip that matches your target persona, (2) feed that clip into create_voice_clone_prompt to build a reusable prompt, and then (3) call generate_voice_clone with voice_clone_prompt to generate new content without re-extracting features every time. This is especially useful when you want a consistent character voice across many lines.\n\nimport torch\nimport soundfile as sf\nfrom qwen_tts import Qwen3TTSModel\n\n# create a reference audio in the target style using the VoiceDesign model\ndesign_model = Qwen3TTSModel.from_pretrained(\n    \"Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign\",\n    device_map=\"cuda:0\",\n    dtype=torch.bfloat16,\n    attn_implementation=\"flash_attention_2\",\n)\n\nref_text = \"H-hey! You dropped your... uh... calculus notebook? I mean, I think it's yours? Maybe?\"\nref_instruct = \"Male, 17 years old, tenor range, gaining confidence - deeper breath support now, though vowels still tighten when nervous\"\nref_wavs, sr = design_model.generate_voice_design(\n    text=ref_text,\n    language=\"English\",\n    instruct=ref_instruct\n)\nsf.write(\"voice_design_reference.wav\", ref_wavs[0], sr)\n\n# build a reusable clone prompt from the voice design reference\nclone_model = Qwen3TTSModel.from_pretrained(\n    \"Qwen/Qwen3-TTS-12Hz-1.7B-Base\",\n    device_map=\"cuda:0\",\n    dtype=torch.bfloat16,\n    attn_implementation=\"flash_attention_2\",\n)\n\nvoice_clone_prompt = clone_model.create_voice_clone_prompt(\n    ref_audio=(ref_wavs[0], sr),   # or \"voice_design_reference.wav\"\n    ref_text=ref_text,\n)\n\nsentences = [\n    \"No problem! I actually... kinda finished those already? If you want to compare answers or something...\",\n    \"What? No! I mean yes but not like... I just think you're... your titration technique is really precise!\",\n]\n\n# reuse it for multiple single calls\nwavs, sr = clone_model.generate_voice_clone(\n    text=sentences[0],\n    language=\"English\",\n    voice_clone_prompt=voice_clone_prompt,\n)\nsf.write(\"clone_single_1.wav\", wavs[0], sr)\n\nwavs, sr = clone_model.generate_voice_clone(\n    text=sentences[1],\n    language=\"English\",\n    voice_clone_prompt=voice_clone_prompt,\n)\nsf.write(\"clone_single_2.wav\", wavs[0], sr)\n\n# or batch generate in one call\nwavs, sr = clone_model.generate_voice_clone(\n    text=sentences,\n    language=[\"English\", \"English\"],\n    voice_clone_prompt=voice_clone_prompt,\n)\nfor i, w in enumerate(wavs):\n    sf.write(f\"clone_batch_{i}.wav\", w, sr)\nTokenizer Encode and Decode\n\nIf you only want to encode and decode audio for transport or training and so on, Qwen3TTSTokenizer supports encode/decode with paths, URLs, numpy waveforms, and dict/list payloads, for example:\n\nimport soundfile as sf\nfrom qwen_tts import Qwen3TTSTokenizer\n\ntokenizer = Qwen3TTSTokenizer.from_pretrained(\n    \"Qwen/Qwen3-TTS-Tokenizer-12Hz\",\n    device_map=\"cuda:0\",\n)\n\nenc = tokenizer.encode(\"https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen3-TTS-Repo/tokenizer_demo_1.wav\")\nwavs, sr = tokenizer.decode(enc)\nsf.write(\"decode_output.wav\", wavs[0], sr)\n\nFor more tokenizer examples (including different input formats and batch usage), please refer to the example codes. With those examples and the description for Qwen3TTSTokenizer, you can explore more advanced usage patterns.\n\nLaunch Local Web UI Demo\n\nTo launch the Qwen3-TTS web ui demo, simply install the qwen-tts package and run qwen-tts-demo. Use the command below for help:\n\nqwen-tts-demo --help\n\nTo launch the demo, you can use the following commands:\n\n# CustomVoice model\nqwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --ip 0.0.0.0 --port 8000\n# VoiceDesign model\nqwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign --ip 0.0.0.0 --port 8000\n# Base model\nqwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-Base --ip 0.0.0.0 --port 8000\n\nAnd then open http://<your-ip>:8000, or access it via port forwarding in tools like VS Code.\n\nBase Model HTTPS Notes\n\nTo avoid browser microphone permission issues after deploying the server, for Base model deployments, it is recommended/required to run the gradio service over HTTPS (especially when accessed remotely or behind modern browsers/gateways). Use --ssl-certfile and --ssl-keyfile to enable HTTPS. First we need to generate a private key and a self-signed cert (valid for 365 days):\n\nopenssl req -x509 -newkey rsa:2048 \\\n  -keyout key.pem -out cert.pem \\\n  -days 365 -nodes \\\n  -subj \"/CN=localhost\"\n\nThen run the demo with HTTPS:\n\nqwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-Base \\\n  --ip 0.0.0.0 --port 8000 \\\n  --ssl-certfile cert.pem \\\n  --ssl-keyfile key.pem \\\n  --no-ssl-verify\n\nAnd open https://<your-ip>:8000 to experience it. If your browser shows a warning, it’s expected for self-signed certificates. For production, use a real certificate.\n\nDashScope API Usage\n\nTo further explore Qwen3-TTS, we encourage you to try our DashScope API for a faster and more efficient experience. For detailed API information and documentation, please refer to the following:\n\nAPI Description\tAPI Documentation (Mainland China)\tAPI Documentation (International)\nReal-time API for Qwen3-TTS of custom voice model.\thttps://help.aliyun.com/zh/model-studio/qwen-tts-realtime\thttps://www.alibabacloud.com/help/en/model-studio/qwen-tts-realtime\nReal-time API for Qwen3-TTS of voice clone model.\thttps://help.aliyun.com/zh/model-studio/qwen-tts-voice-cloning\thttps://www.alibabacloud.com/help/en/model-studio/qwen-tts-voice-cloning\nReal-time API for Qwen3-TTS of voice design model.\thttps://help.aliyun.com/zh/model-studio/qwen-tts-voice-design\thttps://www.alibabacloud.com/help/en/model-studio/qwen-tts-voice-design\nvLLM Usage\n\nvLLM officially provides day-0 support for Qwen3-TTS! Welcome to use vLLM-Omni for Qwen3-TTS deployment and inference. For installation and more details, please check vLLM-Omni official documentation. Now only offline inference is supported. Online serving will be supported later, and vLLM-Omni will continue to offer support and optimization for Qwen3-TTS in areas such as inference speed and streaming capabilities.\n\nOffline Inference\n\nYou can use vLLM-Omni to inference Qwen3-TTS locally, we provide examples in vLLM-Omni repo which can generate audio output:\n\n# git clone https://github.com/vllm-project/vllm-omni.git\n\n# cd vllm-omni/examples/offline_inference/qwen3_tts\n\n# Run a single sample with CustomVoice task\npython end2end.py --query-type CustomVoice\n\n# Batch sample (multiple prompts in one run) with CustomVoice task:\npython end2end.py --query-type CustomVoice --use-batch-sample\n\n# Run a single sample with VoiceDesign task\npython end2end.py --query-type VoiceDesign\n\n# Batch sample (multiple prompts in one run) with VoiceDesign task:\npython end2end.py --query-type VoiceDesign --use-batch-sample\n\n# Run a single sample with Base task in icl mode-tag\npython end2end.py --query-type Base --mode-tag icl\nFine Tuning\n\nPlease refer to Qwen3-TTS-Finetuning for detailed instructions on fine-tuning Qwen3-TTS.\n\nEvaluation\n\nDuring evaluation, we ran inference for all models with dtype=torch.bfloat16 and set max_new_tokens=2048. All other sampling parameters used the defaults from the checkpoint’s generate_config.json. For the Seed-Test and InstructTTS-Eval test sets, we set language=\"auto\", while for all other test sets we explicitly passed the corresponding language. The detailed results are shown below.\n\nSpeech Generation Benchmarks\nSpeech Tokenizer Benchmarks\nCitation\n\nIf you find our paper and code useful in your research, please consider giving a star ⭐ and citation 📝 :)\n\n@article{Qwen3-TTS,\n  title={Qwen3-TTS Technical Report},\n  author={Hangrui Hu and Xinfa Zhu and Ting He and Dake Guo and Bin Zhang and Xiong Wang and Zhifang Guo and Ziyue Jiang and Hongkun Hao and Zishan Guo and Xinyu Zhang and Pei Zhang and Baosong Yang and Jin Xu and Jingren Zhou and Junyang Lin},\n  journal={arXiv preprint arXiv:2601.15621},\n  year={2026}\n}\nStar History\n\nAbout\n\nQwen3-TTS is an open-source series of TTS models developed by the Qwen team at Alibaba Cloud, supporting stable, expressive, and streaming speech generation, free-form voice design, and vivid voice cloning.\n\nResources\n Readme\nLicense\n Apache-2.0 license\n Activity\n Custom properties\nStars\n 11.7k stars\nWatchers\n 66 watching\nForks\n 1.5k forks\nReport repository\n\nReleases\nNo releases published\n\nPackages\nNo packages published\n\nContributors\n2\nwangxiongts Xiong Wang\nvasqu Anton Vlasjuk\n\nLanguages\nPython\n100.0%",
+    "graph": {
+      "summary": "Qwen3-TTS is an open-source series of text-to-speech models developed by the Qwen team at Alibaba Cloud, offering functionalities like voice cloning, design, and high-quality speech generation in multiple languages.",
+      "nodes": [
+        {
+          "id": "qwen3-tts",
+          "label": "Qwen3-TTS",
+          "type": "product"
+        },
+        {
+          "id": "alibaba-cloud",
+          "label": "Alibaba Cloud",
+          "type": "org"
+        },
+        {
+          "id": "qwen-team",
+          "label": "Qwen Team",
+          "type": "org"
+        },
+        {
+          "id": "tts-models",
+          "label": "TTS Models",
+          "type": "technology"
+        },
+        {
+          "id": "qwen3-tts-tokenizer-12hz",
+          "label": "Qwen3-TTS-Tokenizer-12Hz",
+          "type": "product"
+        },
+        {
+          "id": "qwen3-tts-architecture",
+          "label": "Qwen3-TTS Architecture",
+          "type": "concept"
+        },
+        {
+          "id": "speech-generation",
+          "label": "Speech Generation",
+          "type": "concept"
+        },
+        {
+          "id": "voice-clone",
+          "label": "Voice Clone",
+          "type": "concept"
+        },
+        {
+          "id": "voice-design",
+          "label": "Voice Design",
+          "type": "concept"
+        },
+        {
+          "id": "dual-track-architecture",
+          "label": "Dual-Track Architecture",
+          "type": "technology"
+        },
+        {
+          "id": "contextual-understanding",
+          "label": "Contextual Understanding",
+          "type": "concept"
+        },
+        {
+          "id": "natural-language-control",
+          "label": "Natural Language Control",
+          "type": "concept"
+        },
+        {
+          "id": "hugging-face",
+          "label": "Hugging Face",
+          "type": "org"
+        },
+        {
+          "id": "modelscope",
+          "label": "ModelScope",
+          "type": "org"
+        },
+        {
+          "id": "flashattention-2",
+          "label": "FlashAttention 2",
+          "type": "technology"
+        },
+        {
+          "id": "qwen3-tts-12hz-1-7b-customvoice",
+          "label": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+          "type": "product"
+        },
+        {
+          "id": "qwen3-tts-12hz-1-7b-voicedesign",
+          "label": "Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+          "type": "product"
+        },
+        {
+          "id": "qwen3-tts-12hz-1-7b-base",
+          "label": "Qwen3-TTS-12Hz-1.7B-Base",
+          "type": "product"
+        },
+        {
+          "id": "language-support",
+          "label": "Language Support",
+          "type": "concept"
+        },
+        {
+          "id": "apache-2-license",
+          "label": "Apache-2.0 License",
+          "type": "other"
+        }
+      ],
+      "edges": [
+        {
+          "source": "qwen3-tts",
+          "target": "alibaba-cloud",
+          "label": "developed by"
+        },
+        {
+          "source": "qwen-team",
+          "target": "alibaba-cloud",
+          "label": "part of"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "qwen-team",
+          "label": "developed by"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "tts-models",
+          "label": "is"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "qwen3-tts-tokenizer-12hz",
+          "label": "uses"
+        },
+        {
+          "source": "qwen3-tts-architecture",
+          "target": "dual-track-architecture",
+          "label": "includes"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "qwen3-tts-architecture",
+          "label": "has"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "speech-generation",
+          "label": "supports"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "voice-clone",
+          "label": "supports"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "voice-design",
+          "label": "supports"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "contextual-understanding",
+          "label": "enhanced by"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "natural-language-control",
+          "label": "features"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "language-support",
+          "label": "offers"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "hugging-face",
+          "label": "available on"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "modelscope",
+          "label": "available on"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "flashattention-2",
+          "label": "compatible with"
+        },
+        {
+          "source": "qwen3-tts-12hz-1-7b-customvoice",
+          "target": "qwen3-tts",
+          "label": "part of"
+        },
+        {
+          "source": "qwen3-tts-12hz-1-7b-voicedesign",
+          "target": "qwen3-tts",
+          "label": "part of"
+        },
+        {
+          "source": "qwen3-tts-12hz-1-7b-base",
+          "target": "qwen3-tts",
+          "label": "part of"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "apache-2-license",
+          "label": "licensed under"
+        }
+      ]
+    },
+    "created": "2026-05-31T14:22:51"
+  },
+  {
+    "id": "a8a6373fb835",
+    "url": "https://arxiv.org/html/2601.15621v1",
+    "title": "Qwen3-TTS Technical Report",
+    "text": "Qwen3-TTS Technical Report\nQwen Team\nAbstract\n\nIn this report, we present the Qwen3-TTS series, a family of advanced multilingual, controllable, robust, and streaming text-to-speech models. Qwen3-TTS supports state-of-the-art 3-second voice cloning and description-based control, allowing both the creation of entirely novel voices and fine-grained manipulation over the output speech. Trained on over 5 million hours of speech data spanning 10 languages, Qwen3-TTS adopts a dual-track LM architecture for real-time synthesis, coupled with two speech tokenizers: 1) Qwen-TTS-Tokenizer-25Hz is a single-codebook codec emphasizing semantic content, which offers seamlessly integration with Qwen-Audio and enables streaming waveform reconstruction via a block-wise DiT. 2) Qwen-TTS-Tokenizer-12Hz achieves extreme bitrate reduction and ultra-low-latency streaming, enabling immediate first-packet emission (\n97\n​\nms\n) through its 12.5 Hz, 16-layer multi-codebook design and a lightweight causal ConvNet. Extensive experiments indicate state-of-the-art performance across diverse objective and subjective benchmark (e.g., TTS multilingual test set, InstructTTSEval, and our long speech test set). To facilitate community research and development, we release both tokenizers and models under the Apache 2.0 license.\n\n1Introduction\nFigure 1:Qwen3-TTS is a multilingual, controllable, robust, and streaming text-to-speech model. Based on these features, Qwen3-TTS supports a wide range of tasks, including but not limited to cloning, creating and controlling voice, and easily handling various complex texts.\n\nStable, controllable, and human-like speech synthesis is widely viewed as a key capability on the path to AGI. Modern neural text-to-speech (TTS) models, trained on large-scale datasets, already deliver exceptional capability to generate high-quality speech from a few seconds of reference audio (Wang et al., 2023; Shen et al., 2023; Ju et al., 2024; Yang et al., 2023; Eskimez et al., 2024; Chen et al., 2024; Du et al., 2024a; Wang et al., 2025; 2024; Ye et al., 2025b). Among them, discrete speech tokenization (Défossez et al., 2022; Zeghidour et al., 2022; Kumar et al., 2023) combined with autoregressive language modeling of discrete units has gained traction, offering improved stability while preserving high naturalness and human-likeness (Du et al., 2025; Liao et al., 2024; Défossez et al., 2024; Xu et al., 2025; Zhang et al., 2025a). Conditioning on vocal features or text instructions facilitates finer-grained control over prosody and style, resulting in outputs of greater richness and diversity (Du et al., 2024b; Lyth and King, 2024; Zhou et al., 2024; Ji et al., 2025; Leng et al.,). These breakthroughs are paving the way for diverse applications in fields such as virtual assistants and automated content creation.\n\nTable 1:Overview of the Qwen3-TTS model family.\nModel Name\tStreaming\tMultilinguality\tVoice Clone\tInstruction Following\nQwen3-TTS-12Hz-1.7B-Base\t\n✓\n\t\n✓\n\t\n✓\n\t\nQwen3-TTS-12Hz-1.7B-VoiceDesign\t\n✓\n\t\n✓\n\t\t\n✓\n\nQwen3-TTS-12Hz-1.7B-CustomVoice\t\n✓\n\t\n✓\n\t\t\n✓\n\nQwen3-TTS-12Hz-0.6B-Base\t\n✓\n\t\n✓\n\t\n✓\n\t\nQwen3-TTS-12Hz-0.6B-CustomVoice\t\n✓\n\t\n✓\n\t\t\nQwen3-TTS-25Hz-1.7B-Base\t\n✓\n\t\n✓\n\t\n✓\n\t\nQwen3-TTS-25Hz-1.7B-VoiceEditing\t\n✓\n\t\n✓\n\t\n✓\n\t\n✓\n\nQwen3-TTS-25Hz-1.7B-CustomVoice\t\n✓\n\t\n✓\n\t\t\n✓\n\nQwen3-TTS-25Hz-0.6B-Base\t\n✓\n\t\n✓\n\t\n✓\n\t\nQwen3-TTS-25Hz-0.6B-CustomVoice\t\n✓\n\t\n✓\n\t\t\n\nIn this report, we take a step toward stable, controllable, and human-like speech synthesis and introduce Qwen3-TTS, the first text-to-speech model in the Qwen series. Qwen3-TTS exhibits the following properties: 1) Controllability: Qwen3-TTS allows users to create new voices or manipulate fine-grained attributes of generated speech via natural language descriptions, while also supporting the stable generation of any content using the created voice. 2) Voice Cloning and Predefined Voice Profiles: Qwen3-TTS supports 3-second voice cloning and generation using a set of x curated, high-quality preset voices. 3) Naturalness: Beyond achieving robust synthesis, Qwen3-TTS excels in generating highly natural and expressive speech. Our 1.7B model, in particular, delivers state-of-the-art, human-like quality, demonstrating our approach successfully maximizes perceptual quality without overfitting to ASR-related metrics. 4) Multilinguality: The model is trained across more than 10 languages and supports speaker-consistent multilingual generation. 5) Streaming: Designed for streaming text input and streaming audio output, it achieves a first-packet latency as low as 97 ms (0.6B variant) and 101 ms (1.7B variant).\n\nBeyond the aforementioned aspects, and from a broader perspective of practical application, it is crucial for our model to integrate seamlessly with Large Language Models (LLMs) and achieve extremely low first-packet latency. To this end, we use discrete speech representations as the cornerstone of our architecture and introduce two tokenizers in the Qwen3-TTS family: 1) Qwen-TTS-Tokenizer-25Hz employs a 25 Hz single-codebook representation with waveform reconstruction via block-wise flow matching to enable streaming synthesis (Xu et al., 2025). Empirically, we find that semantic tokenizers lack expressive power, whereas purely acoustic tokenizers inject excessive low-level detail that complicates LLM-based modeling and leads to long-horizon error accumulation. To balance these factors, Qwen-TTS-Tokenizer-25Hz integrates semantic and acoustic cues, leveraging the Qwen2-Audio encoder for both expressivity and tractability. Although it supports streaming with a block-wise diffusion decoder, we found that its single-codebook design limits suitability for ultra-low-latency applications and general speech synthesis. Therefore, we develop 2) Qwen-TTS-Tokenizer-12Hz, which adopts a 12.5 Hz multi-codebook scheme inspired by Zhang et al. (2023b). Its first codebook layer encodes semantic content, while the subsequent layers capture acoustic details. The increased capacity permits waveform reconstruction using only a lightweight causal ConvNet, eliminating the need for speaker vector extraction or complex diffusion models (Du et al., 2024b; Zhang et al., 2025a). To further support ultra–low-latency streaming, we designed a dual-track autoregressive architecture for streaming text input and audio output. This architecture incorporates a Multi-Token Prediction (MTP) module to effectively model the multi-codebook sequence, which enables immediate speech decoding from the first codec frame.\n\nTrained on over 5 million hours of speech data, Qwen3-TTS achieves impressive performance across diverse benchmarks. Specifically, it establishes a new state-of-the-art in zero-shot voice cloning, achieving the lowest Word Error Rate (WER) on the Seed-TTS benchmark while delivering superior speaker similarity across all 10 evaluated languages compared to commercial baselines like MiniMax and ElevenLabs. In cross-lingual scenarios, Qwen3-TTS demonstrates exceptional adaptability, reducing error rates by significant margins in challenging pairs such as Chinese-to-Korean. Regarding controllability, Qwen3-TTS excels in following complex natural language instructions for voice design and control, outperforming GPT-4o-mini-tts in target speaker manipulation. Furthermore, the model exhibits remarkable stability in long-form generation, capable of synthesizing over 10 minutes of natural and fluent speech. To facilitate community research and development, we release the complete family of Qwen3-TTS models and tokenizers.\n\n2Qwen-TTS-Tokenizer\n2.1Qwen-TTS-Tokenizer-25Hz\nFigure 2:Overview of Qwen-TTS tokenizers.\nTokenizer\n\nQwen-TTS-Tokenizer-25 Hz is a 25 Hz single-codebook tokenizer built upon Qwen2-Audio through a two-stage training framework. In the first stage (Stage 1), we continue pretraining Qwen2-Audio on an automatic speech recognition (ASR) task, augmenting the audio encoder with an additional resampling layer and a vector quantization (VQ) layer inserted at an intermediate position. In the second stage (Stage 2), we fine-tune the entire model by incorporating a convolution-based mel-spectrogram decoder, which reconstructs mel-spectrograms from the audio tokens. This reconstruction objective explicitly injects essential acoustic information into the learned audio token representations.\n\nStreaming Detokenizer\n\nTo enable streaming audio generation, particularly for long sequences, we propose a sliding-window block attention mechanism that restricts each token to a limited context. Specifically, we use a Diffusion Transformer (DiT) trained with Flow Matching (Lipman et al.,). The input code sequence is first mapped to a mel-spectrogram via Flow Matching, after which a modified BigVGAN (Lee et al.,) reconstructs the waveform from the generated mel-spectrogram.\n\nTo support streaming decoding, we group adjacent codes into fixed-length blocks and construct the corresponding attention mask (Guo et al., 2025). The DiT’s receptive field is restricted to 4 blocks—the current block, a 3-block lookback, and a 1-block lookahead. During decoding, we generate mel-spectrograms in chunks with Flow Matching, ensuring that each code chunk has access to the required context blocks. This design improves streaming quality by preserving necessary context. We apply the same chunked procedure to BigVGAN, whose receptive field is fixed, to support streaming waveform synthesis.\n\n2.2Qwen-TTS-Tokenizer-12Hz\n\nQwen-TTS-Tokenizer-12Hz is a 12.5 Hz multi-codebook tokenizer with jointly optimized semantic and acoustic streams. Building on the semantic–acoustic disentangled quantization strategy of the Mimi architecture (Défossez et al., 2024), speech is decomposed into two discrete code sequences: a semantic codebook capturing high-level semantic content and an acoustic codebook modeling acoustic detail, prosody, and others. Training adopts a GAN-based framework in which the generator operates directly on raw waveforms to extract and quantize both representations, while the discriminator improves the naturalness and fidelity of reconstructed speech. A multi-scale mel-spectrogram reconstruction loss further enforces time–frequency consistency. For the semantic path, WavLM (Chen et al., 2022) serves as a teacher to guide the first semantic codebook layer toward semantically aligned features. The acoustic path employs a 15-layer residual vector quantization (RVQ) module that progressively refines details not captured by the semantic codebook. To enable streaming, we use fully causal feature encoders and decoders: the encoder processes frames sequentially and emits semantic and acoustic tokens at 12.5 Hz without look-ahead, and the decoder reconstructs audio incrementally from these tokens. This end-to-end causal design supports streaming inference with low latency, making the tokenizer suitable for real-time online services.\n\n3Method\nFigure 3:The overview of Qwen3-TTS. Dashed lines represent optional.\n3.1Architectures\n\nQwen3-TTS leverages the Qwen3 LM family to achieve high concurrency and low-latency inference. Text is processed using the standard Qwen tokenizer, while speech is encoded using the Qwen-TTS-Tokenizer. To maintain precise identity control, we jointly train a learnable speaker encoder with the backbone. For real-time synthesis, Qwen3-TTS employs a dual-track representation by concatenating textual and acoustic tokens along the channel axis. Upon receiving a textual token, the model immediately predicts the corresponding acoustic tokens, which are then converted into waveforms by the Code2Wav module.\n\nQwen3-TTS-25Hz\n\nQwen3-TTS-25Hz uses Qwen-TTS-Tokenizer-25Hz to extract single-level speech tokens. The backbone integrates text features with preceding speech tokens and predicts the current speech token through a linear head. The resulting sequence is then processed by a chunk-wise DiT module for high-fidelity waveform reconstruction.\n\nQwen3-TTS-12Hz\n\nArchitecturally, Qwen3-TTS-12Hz differs from Qwen3-TTS-25Hz by operating on RVQ tokens from Qwen-TTS-Tokenizer-12Hz. It adopts a hierarchical prediction scheme: the backbone ingests aggregated codebook features to predict the zeroth codebook, and an MTP (Multi-Token Prediction) module then generates all residual codebooks. This strategy captures intricate acoustic details, significantly enhancing vocal consistency and expressivity, while minimizing latency through single-frame instant generation.\n\n3.2Training\n\nThe training process consists of pre-training and post-training. All data is formatted in ChatML to standardize inputs and support controllable speech generation.\n\nThe pre-training of Qwen3-TTS is structured into three stages:\n\n(1) \n\nGeneral Stage (S1): During the initial pre-training phase, we leverage over 5 million hours of multilingual speech data to train Qwen3-TTS. This stage establishes a monotonic mapping from multilingual text representations to speech and builds general capabilities for Qwen3-TTS.\n\n(2) \n\nHigh-Quality Stage (S2): We stratify data quality with a dedicated pipeline and perform continual pre-training (CPT) with high-quality data. This stage alleviates hallucinations caused by noisy data in the initial stage and significantly improves the quality of generated speech.\n\n(3) \n\nLong-Context Stage (S3): In the final pre-training phase, we increase the maximum token length from 8,192 to 32,768 and upsample long speech in the training data. Experimental results indicate that these adjustments enhance the model’s ability to process extended and complex inputs and to generate contextually appropriate speech responses.\n\nThe post-training phase comprises three stages, enabling Qwen3-TTS to generate human-like speech and remain stable across tasks. In the first stage, we introduce Direct Preference Optimization (DPO) (Rafailov et al., 2023) to align model outputs with human preferences. Specifically, we construct preference pairs for multilingual speech samples based on human feedback and then perform DPO on Qwen3-TTS. In the second stage, we employ rule-based rewards and leverage GSPO to comprehensively enhance the model’s capabilities and stability across tasks. Finally, we introduce lightweight speaker fine-tuning on the base model, enabling Qwen3-TTS to adopt specific voices while further improving the naturalness, expressiveness, and controllability of its speech responses.\n\n3.3Features\n\nQwen3-TTS supports streaming voice cloning, voice design, and fine-grained control. To achieve this, we prepend user-provided instructions containing fine-grained control signals to the input sequences.\n\nFor voice cloning, Qwen3-TTS clones a target voice from (i) reference speech via a speaker embedding, enabling real-time cloning, or (ii) a text–speech pair via in-context learning, which better preserves prosody. For voice design, built upon the Qwen3 text model foundation, Qwen3-TTS inherits robust text comprehension capabilities. Additionally, we introduce a probabilistically activated thinking pattern during training to improve instruction following, especially for complex descriptions. Furthermore, based on this strong instruction-following capability, Qwen3-TTS controls predefined voices with desired styles.\n\n3.4Efficiency\n\nLow first-packet latency and stable streaming under concurrency are jointly determined by (i) the language model (LM) time to first token group for the first speech packet, and (ii) the tokenizer decoding pipeline that converts generated tokens into waveforms. As shown in Table 2, we evaluate Qwen3-TTS with different LM sizes and tokenizer variants under various concurrency levels. All reported numbers are end-to-end measured latencies, and steady-state costs are measured per speech packet during streaming generation. Specifically, latency is measured on our internal vLLM engine (vLLM V0 backend) on a single typical computational resource with optimizations applied via torch.compile and CUDA Graph acceleration to the decoding stage of the tokenizer. Reported First-Packet Latency is the sum of LM time-to-first packet tokens (TTFP) and tokenizer decode time for per-packet (TPP). LM time for per-packet (TPP) is the steady-state LM time to produce one packet’s tokens during streaming generation.\n\nTable 2:Streaming efficiency of Qwen3-TTS with different tokenizers under varying concurrency.\nModel\tConcurrency\tLM TTFP\tTokenizer Decode TPP\tFirst-Packet Latency\tLM TPP\tRTF\nQwen3-TTS-25Hz-1.7B\t1\t125 ms\t25 ms\t150 ms\t56 ms\t0.253\nQwen3-TTS-25Hz-1.7B\t3\t222 ms\t62 ms\t284 ms\t64 ms\t0.394\nQwen3-TTS-25Hz-1.7B\t6\t376 ms\t147 ms\t523 ms\t85 ms\t0.725\nQwen3-TTS-25Hz-0.6B\t1\t113 ms\t25 ms\t138 ms\t50 ms\t0.234\nQwen3-TTS-25Hz-0.6B\t3\t198 ms\t62 ms\t260 ms\t59 ms\t0.378\nQwen3-TTS-25Hz-0.6B\t6\t334 ms\t147 ms\t481 ms\t80 ms\t0.709\nQwen3-TTS-12Hz-1.7B\t1\t97 ms\t4 ms\t101 ms\t21 ms\t0.313\nQwen3-TTS-12Hz-1.7B\t3\t190 ms\t5 ms\t195 ms\t24 ms\t0.363\nQwen3-TTS-12Hz-1.7B\t6\t328 ms\t5 ms\t333 ms\t32 ms\t0.463\nQwen3-TTS-12Hz-0.6B\t1\t93 ms\t4 ms\t97 ms\t19 ms\t0.288\nQwen3-TTS-12Hz-0.6B\t3\t174 ms\t5 ms\t179 ms\t22 ms\t0.338\nQwen3-TTS-12Hz-0.6B\t6\t294 ms\t5 ms\t299 ms\t30 ms\t0.434\n\nQwen-TTS-Tokenizer-25Hz performs code-to-waveform synthesis through chunk-wise inference. Due to the look-ahead requirement in the DiT module, waveform synthesis for the first chunk cannot start until sufficient future tokens are available. With a chunk size of 8 set in Qwen3-TTS, the model must wait for the LM to generate 16 tokens before DiT can produce the first 8-token mel chunk. Under the 25 Hz token rate (40 ms per token), this corresponds to 320 ms of mel content per packet. In addition, the BigVGAN vocoder introduces an extra right-context look-ahead (130 ms). Therefore, for Tokenizer-25Hz, the first packet ultimately contains about 190 ms of audio, and the LM must generate 16 tokens before synthesis can start. During steady-state streaming generation, every time the LM generates 8 tokens, DiT and BigVGAN can synthesize a 320 ms audio packet. The first-packet latency and RTF reported in our table are computed based on the above setup.\n\nQwen-TTS-Tokenizer-12Hz uses a pure left-context streaming codec decoder, enabling waveform emission immediately after the required tokens are available, without waiting for future context. With the 12.5 Hz token rate, each token corresponds to 80 ms of audio, so one token can be decoded into audio directly in principle. To avoid excessive scheduling overhead caused by very small packets, we define one speech packet as 4 tokens, which means 320 ms of speech per packet. This design significantly reduces decoding time and yields lower first-packet latency, while maintaining low RTF under higher concurrency due to the lightweight and batch-friendly codec decoder.\n\n4Experiments\n\nWe conduct a comprehensive evaluation of Qwen3-TTS. The evaluation is divided into two main categories: speech tokenizer and speech generation.\n\n4.1Evaluation of Speech Tokenizer\n4.1.1Qwen-TTS-Tokenizer-25Hz\n\nAs shown in Table 3, we compare S3 Tokenizer series (Du et al., 2024a; b), also supervised semantic speech tokenizers, on automatic speech recognition (ASR) tasks across English and Chinese subsets of the CommonVoice (C.V.) and Fleurs benchmark. The Qwen-TTS-Tokenizer-25Hz variants demonstrate competitive performance. Qwen-TTS-Tokenizer-25Hz in the S1 stage (trained with ASR supervision) achieves ASR performance comparable to or better than the S3 Tokenizer series, attaining the lowest or near-lowest WER across multiple datasets. In the S2 stage, where the model is further fine-tuned to enhance the acoustic expressiveness of the tokens, ASR performance slightly degrades—consistent with expectations. This mild drop in recognition accuracy is attributed to the incorporation of additional acoustic details into the tokens, which, while reducing pure semantic discriminability, benefits downstream speech generation tasks such as high-quality TTS or waveform reconstruction, reflecting a deliberate trade-off between semantic fidelity and acoustic richness.\n\nTable 3:Comparison between different supervised semantic speech tokenizers on ASR Task. The highest scores are shown in bold.\nModel\tCodebook Size\tFPS\tC.V. EN\tC.V. CN\tFluers EN\tFluers CN\nS3 Tokenizer(VQ) (Du et al., 2024a) \t4096\t50\t12.06\t15.38\t-\t-\nS3 Tokenizer(VQ) (Du et al., 2024a) \t4096\t25\t11.56\t18.26\t7.65\t5.03\nS3 Tokenizer(FSQ) (Du et al., 2024a) \t6561\t25\t10.67\t7.29\t6.58\t4.43\nQwen-TTS-Tokenizer-25Hz (Stage 1)\t32768\t25\t7.51\t10.73\t3.07\t4.23\nQwen-TTS-Tokenizer-25Hz (Stage 2)\t32768\t25\t10.40\t14.99\t4.14\t4.67\n4.1.2Qwen-TTS-Tokenizer-12Hz\n\nWe evaluate speech reconstruction performance on the LibriSpeech test-clean set, which comprises 2,620 utterances. To enable fair comparison across models, we report key configuration parameters, including the number of quantizers (NQ), the codebook size, and the frame per second (FPS). Acoustic quality is assessed using Short-Time Objective Intelligibility (STOI), Perceptual Evaluation of Speech Quality (PESQ), and UTMOS, while speaker similarity (SIM) is measured with a WavLM-based speaker verification model. We compare Qwen-TTS-Tokenizer-12Hz against prior semantic-aware methods, including SpeechTokenizer (Zhang et al., 2023a), XCodec series (Ye et al., 2025a; b), XY-Tokenizer (Gong et al., 2025), Mimi (Défossez et al., 2024), and FireredTTS 2 (Xie et al., 2025). As shown in Table 4, Qwen-TTS-Tokenizer-12Hz not only sets a new state-of-the-art in speech reconstruction across all key metrics but, crucially, does so with remarkable encoding efficiency. This dual breakthrough in both quality and efficiency underscores the advanced capabilities of our method in speech representation learning and semantic information fusion.\n\nTable 4:Comparison between different semantic-related speech tokenizers. The highest scores are shown in bold.\nModel\tNQ\tCodebook Size\tFPS\tPESQ_WB\tPESQ_NB\tSTOI\tUTMOS\tSIM\nSpeechTokenizer (Zhang et al., 2023a) \t8\t1024\t50\t2.60\t3.05\t0.92\t3.90\t0.85\nX-codec (Ye et al., 2025a) \t2\t1024\t50\t2.68\t3.27\t0.86\t4.11\t0.84\nX-codec 2 (Ye et al., 2025b) \t1\t65536\t50\t2.43\t3.04\t0.92\t4.13\t0.82\nXY-Tokenizer (Gong et al., 2025) \t8\t1024\t12.5\t2.41\t3.00\t0.91\t3.98\t0.83\nMimi (Défossez et al., 2024) \t16\t2048\t12.5\t2.88\t3.42\t0.94\t3.87\t0.87\nFireredTTS 2 Tokenizer (Xie et al., 2025) \t16\t2048\t12.5\t2.73\t3.28\t0.94\t3.88\t0.87\nQwen-TTS-Tokenizer-12Hz\t16\t2048\t12.5\t3.21\t3.68\t0.96\t4.16\t0.95\n4.2Speech Generation\n\nIn this section, we conduct a comprehensive evaluation of the speech generation capabilities of Qwen3-TTS. To ensure a robust assessment across diverse scenarios, we categorize our experiments as follows:\n\n• \n\nZero-Shot Speech Generation: We evaluate the model’s ability to clone unseen voices by measuring content consistency—specifically Word Error Rate (WER)—on the public Seed-TTS test set (Anastassiou et al., 2024).\n\n• \n\nMultilingual Speech Generation: To assess linguistic versatility, we examine both content intelligibility and speaker similarity in a zero-shot multilingual setting using the multilingual test set from (Zhang et al., 2025a).\n\n• \n\nCross-Lingual Speech Generation: We investigate the model’s capacity for cross-lingual voice transfer (e.g., preserving timbre across language barriers) by evaluating content consistency on the CV3-Eval benchmark (Du et al., 2025).\n\n• \n\nControllable Speech Generation: We verify the effectiveness of models’ instruction-following on the InstructTTSEval benchmark (Huang et al., 2025).\n\n• \n\nTarget-Speaker Speech Generation: We analyze the generalization performance of our speaker fine-tuned (SFT) model variants on the multilingual test set (Zhang et al., 2025a), focusing on specific speaker adaptation.\n\n• \n\nLong Speech Generation: To validate the robustness and stability of our autoregressive architecture, we evaluate content consistency on an internal dataset consisting of generated speech samples exceeding 10 minutes in duration.\n\n4.2.1Evaluation of Zero-Shot Speech Generation\n\nWe conduct a comparative analysis of Qwen3-TTS against leading state-of-the-art zero-shot TTS systems. Table 5 reports the Word Error Rate (WER) as the primary metric for content consistency. The results highlight several key findings. 1): Qwen3-TTS delivers robust performance across languages, attributed to the diverse acoustic data seen during pretraining and continual pretraining. 2): We observe that the 12Hz variants consistently outperform the 25Hz counterparts in terms of content accuracy (WER). This suggests that the coarser temporal resolution of the Qwen-TTS-Tokenizer-12Hz allows the autoregressive model to better model long-term dependencies for stable speech generation.3): Scaling the model size from 0.6B to 1.7B yields consistent gains. Specifically, after post-training, the Qwen3-TTS-12Hz-1.7B variant achieves state-of-the-art performance on the test-en set with a WER of 1.24, surpassing strong baselines like CosyVoice 3 and Seed-TTS.\n\nTable 5:Zero-shot speech generation on the Seed-TTS test set. Performance is measured by Word Error Rate (WER, \n↓\n), where lower is better. The best results are highlighted in bold.\nDatasets\tModel\tPerformance\nContent Consistency\nSEED\ntest-zh | test-en\tSeed-TTS (Anastassiou et al., 2024)\t1.12 | 2.25\nMaskGCT (Wang et al., 2024) \t2.27 | 2.62\nE2 TTS (Eskimez et al., 2024) \t1.97 | 2.19\nF5-TTS (Chen et al., 2024) \t1.56 | 1.83\nSpark TTS (Wang et al., 2025) \t1.20 | 1.98\nLlasa-8B (Ye et al., 2025b) \t1.59 | 2.97\nKALL-E (Xia et al., 2024) \t0.96 | 1.94\nFireRedTTS 2 (Xie et al., 2025) \t1.14 | 1.95\nCosyVoice 3 (Du et al., 2025) \t0.71 | 1.45\nMiniMax-Speech (Zhang et al., 2025a) \t0.83 | 1.65\nQwen3-TTS-25Hz-0.6B-Base\t1.18 | 1.64\nQwen3-TTS-25Hz-1.7B-Base\t1.10 | 1.49\nQwen3-TTS-12Hz-0.6B-Base\t0.92 | 1.32\nQwen3-TTS-12Hz-1.7B-Base\t0.77 | 1.24\n4.2.2Evaluation of Multilingual Speech Generation\n\nQwen3-TTS supports high-fidelity speech generation across 10 distinct languages. We benchmark its performance against leading commercial baselines, specifically MiniMax-Speech and ElevenLabs Multilingual v2. As detailed in Table 6, Qwen3-TTS achieves superior intelligibility (lowest WER) in 6 out of 10 languages, including Chinese, English, Italian, French, Korean, and Russian, surpassing the baselines by a significant margin. For the remaining languages (German, Portuguese, Spanish, and Japanese), Qwen3-TTS maintains highly competitive performance comparable to the state-of-the-art. Furthermore, Qwen3-TTS demonstrates dominant performance in voice cloning fidelity. It achieves the highest speaker similarity scores across all 10 evaluated languages, consistently outperforming both MiniMax-Speech and ElevenLabs. This superiority indicates that Qwen3-TTS excels at capturing intrinsic speaker characteristics—such as timbre and prosody—while maintaining robust multilingual content generation.\n\nTable 6:Multilingual speech generation on the TTS multilingual test set. Performance is measured by Word Error Rate (WER, \n↓\n) for consistency and Cosine Similarity (SIM, \n↑\n) for speaker similarity. The best results are highlighted in bold.\nLanguage\tQwen3-TTS-25Hz\tQwen3-TTS-12Hz\tMiniMax\tElevenLabs\n0.6B-Base\t1.7B-Base\t0.6B-Base\t1.7B-Base\nContent Consistency\nChinese\t1.108\t0.777\t1.145\t0.928\t2.252\t16.026\nEnglish\t1.048\t1.014\t0.836\t0.934\t2.164\t2.339\nGerman\t1.501\t0.960\t1.089\t1.235\t1.906\t0.572\nItalian\t1.169\t1.105\t1.534\t0.948\t1.543\t1.743\nPortuguese\t2.046\t1.778\t2.254\t1.526\t1.877\t1.331\nSpanish\t2.031\t1.491\t1.491\t1.126\t1.029\t1.084\nJapanese\t4.189\t5.121\t6.404\t3.823\t3.519\t10.646\nKorean\t2.458\t2.695\t1.741\t1.755\t1.747\t1.865\nFrench\t2.852\t2.631\t2.931\t2.858\t4.099\t5.216\nRussian\t5.957\t4.535\t4.458\t3.212\t4.281\t3.878\nSpeaker Similarity\nChinese\t0.797\t0.796\t0.811\t0.799\t0.780\t0.677\nEnglish\t0.811\t0.815\t0.829\t0.775\t0.756\t0.613\nGerman\t0.749\t0.737\t0.769\t0.775\t0.733\t0.614\nItalian\t0.722\t0.718\t0.792\t0.817\t0.699\t0.579\nPortuguese\t0.790\t0.783\t0.794\t0.817\t0.805\t0.711\nSpanish\t0.732\t0.731\t0.812\t0.814\t0.762\t0.615\nJapanese\t0.810\t0.807\t0.798\t0.788\t0.776\t0.738\nKorean\t0.824\t0.814\t0.812\t0.799\t0.776\t0.700\nFrench\t0.698\t0.703\t0.700\t0.714\t0.628\t0.535\nRussian\t0.734\t0.744\t0.781\t0.792\t0.761\t0.676\n4.2.3Evaluation of Cross-Lingual Speech Generation\n\nWe assess the capability of Qwen3-TTS to preserve speaker identity across language barriers (cross-lingual voice cloning). We benchmark against the CosyVoice series. Table 7 reports the error rates (WER/CER) for various source-target pairs. As shown in the table, Qwen3-TTS establishes a new state-of-the-art in scenarios targeting English and Korean. Most notably, in zh-to-ko generation, Qwen3-TTS reduces the error rate by approximately 66% compared to CosyVoice3 (4.82 vs. 14.4), demonstrating exceptional cross-lingual generalization. Besides, in frequently used translation pairs like zh-to-en and en-to-zh, Qwen3-TTS outperforms baselines, indicating superior content consistency and reduced accent drift. While CosyVoice2 shows instability in several pairs, Qwen3-TTS maintains consistently low error rates across all evaluated directions, confirming the robustness of our training strategy.\n\nTable 7:Cross-lingual speech generation on the Cross-Lingual benchmark. Performance is measured by Mixed Error Rate (WER for English, CER for others, \n↓\n). The best results are highlighted in bold.\nTask\tQwen3-TTS-25Hz-1.7B-Base\tQwen3-TTS-12Hz-1.7B-Base\tCosyVoice3\tCosyVoice2\nen-to-zh\t5.66\t4.77\t5.09\t13.5\nja-to-zh\t3.92\t3.43\t3.05\t48.1\nko-to-zh\t1.14\t1.08\t1.06\t7.70\nzh-to-en\t2.91\t2.77\t2.98\t6.47\nja-to-en\t3.95\t3.04\t4.20\t17.1\nko-to-en\t3.48\t3.09\t4.19\t11.2\nzh-to-ja\t9.29\t8.40\t7.08\t13.1\nen-to-ja\t7.74\t7.21\t6.80\t14.9\nko-to-ja\t4.17\t3.67\t3.93\t5.86\nzh-to-ko\t8.12\t4.82\t14.4\t24.8\nen-to-ko\t6.83\t5.14\t5.87\t21.9\nja-to-ko\t6.86\t5.59\t7.92\t21.5\n4.2.4Evaluation of Controllable Speech Generation\n\nWe assess the instruction-following capabilities of Qwen3-TTS using the InstructTTSEval benchmark. By adopting the ChatML format, Qwen3-TTS treats voice control as a language modeling task, allowing for nuanced manipulation of speech attributes. The evaluation covers two distinct scenarios: Voice Design (Creation): In this scenario, the model generates novel voices based on text descriptions. As shown in Table 8, Qwen3-TTS-12Hz-1.7B-VD establishes a new state-of-the-art among open-source models. Notably, it outperforms commercial systems like Hume and specialized models like VoiceSculptor in Description-Speech Consistency (DSD) and Response Precision (RP). This indicates superior alignment between the semantic input and the acoustic output. Target Speaker (Editing): This scenario tests the ability to modify attributes of a reference speaker. Qwen3-TTS demonstrates robust performance, significantly outperforming GPT-4o-mini-tts across all metrics (e.g., +28% APS improvement in Chinese). While the Gemini series remains a strong upper bound, Qwen3-TTS exhibits competitive capability in preserving speaker identity while adhering to style modification instructions.\n\nTable 8:Controllable speech generation on InstructTTSEval. Performance is measured by Attribute Perception and Synthesis accuracy (APS), Description–Speech Consistency (DSD), and Response Precision (RP). The highest scores are shown in bold.\nType\tModel\tInstructTTSEval-ZH\tInstructTTSEval-EN\n\t\tAPS (↑)\tDSD (↑)\tRP (↑)\tAPS (↑)\tDSD (↑)\tRP (↑)\nTarget\nSpeaker\tGemini-flash\t88.2\t90.9\t77.3\t92.3\t93.8\t80.1\nGemini-pro\t89.0\t90.1\t75.5\t87.6\t86.0\t67.2\nQwen3TTS-25Hz-1.7B-CustomVoice\t83.1\t75.0\t63.0\t79.0\t82.8\t69.3\nQwen3TTS-12Hz-1.7B-CustomVoice\t83.0\t77.8\t61.2\t77.3\t77.1\t63.7\n\tGPT-4o-mini-tts\t54.9\t52.3\t46.0\t76.4\t74.3\t54.8\nVoice\nDesign\tQwen3TTS-12Hz-1.7B-VD\t85.2\t81.1\t65.1\t82.9\t82.4\t68.4\nMimo-Audio-7B-Instruct (Zhang et al., 2025b) \t75.7\t74.3\t61.5\t80.6\t77.6\t59.5\nVoiceSculptor (Hu et al., 2026) \t75.7\t64.7\t61.5\t-\t-\t-\nHume\t-\t-\t-\t83.0\t75.3\t54.3\nVoxInstruct (Zhou et al., 2024) \t47.5\t52.3\t42.6\t54.9\t57.0\t39.3\nParler-tts-mini (Lyth and King, 2024) \t-\t-\t-\t63.4\t48.7\t28.6\nParler-tts-large (Lyth and King, 2024) \t-\t-\t-\t60.0\t45.9\t31.2\nPromptTTS (Guo et al., 2023) \t-\t-\t-\t64.3\t47.2\t31.4\nPromptStyle (Liu et al., 2023) \t-\t-\t-\t57.4\t46.4\t30.9\n4.2.5Evaluation of Target-Speaker Speech Generation\n\nWe assess the effectiveness of speaker fine-tuning for high-fidelity speaker adaptation. We fine-tune Qwen3-TTS on a specific target speaker (Aiden Voice) and benchmark it against the GPT-4o-Audio-Preview (Ballad Voice) on the multilingual test set. As presented in Table 9, despite being fine-tuned exclusively on monolingual data, Qwen3-TTS exhibits exceptional cross-lingual generalization. It successfully transfers the target speaker’s timbre and prosody to all 10 evaluated languages without degradation in stability. Additionally, Qwen3-TTS outperforms GPT-4o-Audio-Preview in 7 out of 10 languages. Specifically, it achieves lower Word Error Rates (WER) in Chinese, English, German, Spanish, Japanese, Korean, and Russian. While GPT-4o maintains a slight edge in Italian, Portuguese, and French, Qwen3-TTS demonstrates remarkably better intelligibility in challenging languages like Japanese (3.88 vs. 5.00) and Korean (1.74 vs. 2.76), highlighting the robustness of our speaker fine-tuning strategy.\n\nTable 9:Target-Speaker Multilingual Speech Generation on the TTS multilingual test set. Performance is measured by Word Error Rate (WER, \n↓\n). The best results are highlighted in bold.\nLanguage\tQwen3-TTS-25Hz\tQwen3-TTS-12Hz\tGPT-4o-Audio\nPreview\n0.6B-CustomVoice\t1.7B-CustomVoice\t0.6B-CustomVoice\t1.7B-CustomVoice\nChinese\t0.874\t0.708\t0.944\t0.903\t3.519\nEnglish\t1.332\t0.936\t1.188\t0.899\t2.197\nGerman\t0.990\t0.634\t2.722\t1.057\t1.161\nItalian\t1.861\t1.271\t2.545\t1.362\t1.194\nPortuguese\t1.728\t1.854\t3.219\t2.681\t1.504\nSpanish\t1.309\t1.284\t1.154\t1.330\t4.000\nJapanese\t3.875\t4.518\t6.877\t4.924\t5.001\nKorean\t2.202\t2.274\t3.053\t1.741\t2.763\nFrench\t3.865\t3.080\t3.841\t3.781\t3.605\nRussian\t6.529\t4.444\t5.809\t4.734\t5.250\n4.2.6Evaluation of Long Speech Generation\n\nLong-form synthesis presents unique challenges, often prone to issues like repetition, omission, or prosodic discontinuity. We evaluate this capability on a curated internal dataset comprising 100 texts in both Chinese and English, with lengths varying from 200 to 2000 words. Following the methodology of Seed-TTS Eval (Anastassiou et al., 2024), we use Qwen3-ASR for transcription due to its high accuracy in long-form recognition. We compare the fine-tuned Qwen3-TTS (Aiden Voice) against open-source baselines, including Higgs-Audio-v2, VibeVoice, and VoxCPM. As detailed in Table 10, Qwen3-TTS-25Hz-1.7B achieves the lowest WER across both languages (1.533 for long-zh and 1.571 for long-en). This demonstrates remarkable consistency compared to VibeVoice, which exhibits significant degradation in Chinese generation (WER > 22). Unlike chunk-based systems such as Higgs-Audio-v2 that suffer from boundary artifacts, Qwen3-TTS generates seamless audio with consistent prosody throughout the entire duration. Notably, the 25Hz variant outperforms the 12Hz variant in this task, suggesting that semantic tokens may be more beneficial for maintaining stability over extended sequences.\n\nTable 10:Long speech generation results. Performance is measured by Word Error Rate (WER, \n↓\n). The best results are highlighted in bold.\nDatasets\tModel\tPerformance\nContent Consistency\nlong-zh|long-en\tHiggs-Audio-v2 (chunk) (Boson AI, 2025)\t5.505 | 6.917\nVibeVoice (Peng et al., 2025) \t22.619 | 1.780\nVoxCPM (Zhou et al., 2025) \t4.835 | 7.474\nQwen3-TTS-25Hz-1.7B-CustomVoice\t1.517 | 1.225\nQwen3-TTS-12Hz-1.7B-CustomVoice\t2.356 | 2.812\n5Conclusion\n\nIn this report, we introduced Qwen3-TTS, a family of large-scale, multilingual, and robust text-to-speech models designed for real-time speech synthesis. Through a novel dual-track design two types of speech tokenizer comprising the semantic-rich Qwen-TTS-Tokenizer-25Hz and the low-latency Qwen-TTS-Tokenizer-12Hz, Qwen3-TTS effectively synthesizes high-fidelity speech with streaming efficiency. Extensive evaluations confirm that our models achieve state-of-the-art performance across a wide spectrum of tasks. Specifically, Qwen3-TTS sets new benchmarks in zero-shot voice cloning and cross-lingual synthesis, significantly outperforming existing baselines in challenging scenarios like Chinese-to-Korean generation. Besides, with the probabilistically activated thinking pattern, Qwen3-TTS sets new state-of-the-art performance in the voice design scenario. Furthermore, our dedicated training strategy resolves stability issues in autoregressive models, enabling the seamless generation of over 10 minutes of fluent speech without the artifacts typical of chunk-based systems.\n\nQwen3-TTS unifies diverse speech generation tasks—ranging from zero-shot cloning and cross-lingual transfer to fine-grained instruction control—within a single autoregressive framework. This unification paves the way for the next generation of omni-capable audio systems. In future work, we aim to extend this architecture to support versatile audio generation, further scale our multilingual coverage beyond the current 10 languages, and explore more granular stylistic controls. By open-sourcing both the models and tokenizers, we hope to accelerate community research and facilitate the development of more natural, expressive, and accessible human-computer interfaces.\n\n6Authors\n\nCore Contributors: Hangrui Hu, Xinfa Zhu, Ting He, Dake Guo, Bin Zhang, Xiong Wang, Zhifang Guo, Ziyue Jiang, Hongkun Hao, Zishan Guo, Xinyu Zhang, Pei Zhang, Baosong Yang, Jin Xu†, Jingren Zhou, Junyang Lin†\n\nContributors1\n1\nAlphabetical order. †Corresponding Authors.\n Yunfei Chu, Daren Chen, Jiayi Leng, Zheng Li, Yuanjun Lv, Linhan Ma, Ziyang Ma, Xian Shi, Hao Su, Xuechun Wang, Yongqi Wang, Yuezhang Wang, Yuxuan Wang, Zhenglin Wang, Lei Xie, Kangxiang Xia, Qize Yang, Xian Yang, Jianwei Zhang, Guangdong Zhou, Jialong Zuo\n\nReferences\nP. Anastassiou, J. Chen, J. Chen, Y. Chen, Z. Chen, Z. Chen, J. Cong, L. Deng, C. Ding, L. Gao, et al. (2024)\tSeed-tts: a family of high-quality versatile speech generation models.arXiv preprint arXiv:2406.02430.Cited by: 1st item, §4.2.6, Table 5.\nBoson AI (2025)\tHiggs Audio V2: Redefining Expressiveness in Audio Generation.Note: https://github.com/boson-ai/higgs-audioGitHub repository. Release blog available at https://www.boson.ai/blog/higgs-audio-v2Cited by: Table 10.\nS. Chen, C. Wang, Z. Chen, Y. Wu, S. Liu, Z. Chen, J. Li, N. Kanda, T. Yoshioka, X. Xiao, J. Wu, L. Zhou, S. Ren, Y. Qian, Y. Qian, J. Wu, M. Zeng, X. Yu, and F. Wei (2022)\tWavLM: large-scale self-supervised pre-training for full stack speech processing.IEEE J. Sel. Top. Signal Process..Cited by: §2.2.\nY. Chen, Z. Niu, Z. Ma, K. Deng, C. Wang, J. Zhao, K. Yu, and X. Chen (2024)\tF5-tts: a fairytaler that fakes fluent and faithful speech with flow matching.arXiv preprint arXiv:2410.06885.Cited by: §1, Table 5.\nA. Défossez, J. Copet, G. Synnaeve, and Y. Adi (2022)\tHigh fidelity neural audio compression.arXiv:2210.13438.Cited by: §1.\nA. Défossez, L. Mazaré, M. Orsini, A. Royer, P. Pérez, H. Jégou, E. Grave, and N. Zeghidour (2024)\tMoshi: a speech-text foundation model for real-time dialogue.arXiv preprint arXiv:2410.00037.Cited by: §1, §2.2, §4.1.2, Table 4.\nZ. Du, Q. Chen, S. Zhang, K. Hu, H. Lu, Y. Yang, H. Hu, S. Zheng, Y. Gu, Z. Ma, et al. (2024a)\tCosyvoice: a scalable multilingual zero-shot text-to-speech synthesizer based on supervised semantic tokens.arXiv preprint arXiv:2407.05407.Cited by: §1, §4.1.1, Table 3, Table 3, Table 3.\nZ. Du, C. Gao, Y. Wang, F. Yu, T. Zhao, H. Wang, X. Lv, H. Wang, C. Ni, X. Shi, et al. (2025)\tCosyvoice 3: towards in-the-wild speech generation via scaling-up and post-training.arXiv preprint arXiv:2505.17589.Cited by: §1, 3rd item, Table 5.\nZ. Du, Y. Wang, Q. Chen, X. Shi, X. Lv, T. Zhao, Z. Gao, Y. Yang, C. Gao, H. Wang, et al. (2024b)\tCosyVoice 2: scalable streaming speech synthesis with large language models.arXiv preprint arXiv:2412.10117.Cited by: §1, §1, §4.1.1.\nS. E. Eskimez, X. Wang, M. Thakker, C. Li, C. Tsai, Z. Xiao, H. Yang, Z. Zhu, M. Tang, X. Tan, et al. (2024)\tE2 tts: embarrassingly easy fully non-autoregressive zero-shot tts.In 2024 IEEE Spoken Language Technology Workshop (SLT),pp. 682–689.Cited by: §1, Table 5.\nY. Gong, L. Jin, R. Deng, D. Zhang, X. Zhang, Q. Cheng, Z. Fei, S. Li, and X. Qiu (2025)\tXY-tokenizer: mitigating the semantic-acoustic conflict in low-bitrate speech codecs.CoRR abs/2506.23325.Cited by: §4.1.2, Table 4.\nD. Guo, J. Yao, L. Ma, H. Wang, and L. Xie (2025)\tStreamFlow: streaming flow matching with block-wise guided attention mask for speech token decoding.CoRR abs/2506.23986.Cited by: §2.1.\nZ. Guo, Y. Leng, Y. Wu, S. Zhao, and X. Tan (2023)\tPrompttts: controllable text-to-speech with text descriptions.In IEEE International Conference on Acoustics, Speech and Signal Processing ICASSP 2023, Rhodes Island, Greece, June 4-10, 2023,pp. 1–5.Cited by: Table 8.\nJ. Hu, H. Chen, L. Ma, D. Guo, Q. Zhan, W. Li, H. Zhang, K. Xia, Z. Zhang, W. Tian, et al. (2026)\tVoiceSculptor: your voice, designed by you.arXiv preprint arXiv:2601.10629.Cited by: Table 8.\nK. Huang, Q. Tu, L. Fan, C. Yang, D. Zhang, S. Li, Z. Fei, Q. Cheng, and X. Qiu (2025)\tInstructTTSEval: benchmarking complex natural-language instruction following in text-to-speech systems.CoRR abs/2506.16381.Cited by: 4th item.\nS. Ji, Q. Chen, W. Wang, J. Zuo, M. Fang, Z. Jiang, H. Huang, Z. Wang, X. Cheng, S. Zheng, et al. (2025)\tControlSpeech: towards simultaneous and independent zero-shot speaker cloning and zero-shot language style control.In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers),pp. 6966–6981.Cited by: §1.\nZ. Ju, Y. Wang, K. Shen, X. Tan, D. Xin, D. Yang, Y. Liu, Y. Leng, K. Song, S. Tang, et al. (2024)\tNaturalspeech 3: zero-shot speech synthesis with factorized codec and diffusion models.arXiv preprint arXiv:2403.03100.Cited by: §1.\nR. Kumar, P. Seetharaman, A. Luebs, I. Kumar, and K. Kumar (2023)\tHigh-fidelity audio compression with improved rvqgan.Advances in Neural Information Processing Systems 36, pp. 27980–27993.Cited by: §1.\n[19]\tS. Lee, W. Ping, B. Ginsburg, B. Catanzaro, and S. YoonBigVGAN: A universal neural vocoder with large-scale training.In ICLR 2023,Cited by: §2.1.\n[20]\tY. Leng, Z. Guo, K. Shen, Z. Ju, X. Tan, E. Liu, Y. Liu, D. Yang, K. Song, L. He, et al.PromptTTS 2: describing and generating voices with text prompt.In The Twelfth International Conference on Learning Representations,Cited by: §1.\nS. Liao, Y. Wang, T. Li, Y. Cheng, R. Zhang, R. Zhou, and Y. Xing (2024)\tFish-speech: leveraging large language models for advanced multilingual text-to-speech synthesis.External Links: 2411.01156, LinkCited by: §1.\n[22]\tY. Lipman, R. T. Q. Chen, H. Ben-Hamu, M. Nickel, and M. LeFlow matching for generative modeling.In ICLR 2023,Cited by: §2.1.\nG. Liu, Y. Zhang, Y. Lei, Y. Chen, R. Wang, L. Xie, and Z. Li (2023)\tPromptStyle: controllable style transfer for text-to-speech with natural language descriptions.In 24th Annual Conference of the International Speech Communication Association, Interspeech 2023, Dublin, Ireland, August 20-24, 2023, N. Harte, J. Carson-Berndsen, and G. Jones (Eds.),pp. 4888–4892.Cited by: Table 8.\nD. Lyth and S. King (2024)\tNatural language guidance of high-fidelity text-to-speech with synthetic annotations.arXiv preprint arXiv:2402.01912.Cited by: §1, Table 8, Table 8.\nZ. Peng, J. Yu, W. Wang, Y. Chang, Y. Sun, L. Dong, Y. Zhu, W. Xu, H. Bao, Z. Wang, S. Huang, Y. Xia, and F. Wei (2025)\tVibeVoice technical report.CoRR abs/2508.19205.Cited by: Table 10.\nR. Rafailov, A. Sharma, E. Mitchell, C. D. Manning, S. Ermon, and C. Finn (2023)\tDirect preference optimization: your language model is secretly a reward model.In NeurIPS,Cited by: §3.2.\nK. Shen, Z. Ju, X. Tan, Y. Liu, Y. Leng, L. He, T. Qin, S. Zhao, and J. Bian (2023)\tNaturalspeech 2: latent diffusion models are natural and zero-shot speech and singing synthesizers.arXiv preprint arXiv:2304.09116.Cited by: §1.\nC. Wang, S. Chen, Y. Wu, Z. Zhang, L. Zhou, S. Liu, Z. Chen, Y. Liu, H. Wang, J. Li, et al. (2023)\tNeural codec language models are zero-shot text to speech synthesizers.arXiv preprint arXiv:2301.02111.Cited by: §1.\nX. Wang, M. Jiang, Z. Ma, Z. Zhang, S. Liu, L. Li, Z. Liang, Q. Zheng, R. Wang, X. Feng, et al. (2025)\tSpark-tts: an efficient llm-based text-to-speech model with single-stream decoupled speech tokens.arXiv preprint arXiv:2503.01710.Cited by: §1, Table 5.\nY. Wang, H. Zhan, L. Liu, R. Zeng, H. Guo, J. Zheng, Q. Zhang, X. Zhang, S. Zhang, and Z. Wu (2024)\tMaskgct: zero-shot text-to-speech with masked generative codec transformer.arXiv preprint arXiv:2409.00750.Cited by: §1, Table 5.\nK. Xia, X. Zhu, J. Yao, W. Tian, W. Li, and L. Xie (2024)\tKALL-e: autoregressive speech synthesis with next-distribution prediction.CoRR abs/2412.16846.Cited by: Table 5.\nK. Xie, F. Shen, J. Li, F. Xie, X. Tang, and Y. Hu (2025)\tFireRedTTS-2: towards long conversational speech generation for podcast and chatbot.CoRR abs/2509.02020.Cited by: §4.1.2, Table 4, Table 5.\nJ. Xu, Z. Guo, J. He, H. Hu, T. He, S. Bai, K. Chen, J. Wang, Y. Fan, K. Dang, et al. (2025)\tQwen2. 5-omni technical report.arXiv preprint arXiv:2503.20215.Cited by: §1, §1.\nD. Yang, J. Tian, X. Tan, R. Huang, S. Liu, X. Chang, J. Shi, S. Zhao, J. Bian, X. Wu, et al. (2023)\tUniaudio: an audio foundation model toward universal audio generation.arXiv preprint arXiv:2310.00704.Cited by: §1.\nZ. Ye, P. Sun, J. Lei, H. Lin, X. Tan, Z. Dai, Q. Kong, J. Chen, J. Pan, Q. Liu, Y. Guo, and W. Xue (2025a)\tCodec does matter: exploring the semantic shortcoming of codec for audio language model.In AAAI-25, Sponsored by the Association for the Advancement of Artificial Intelligence, February 25 - March 4, 2025, Philadelphia, PA, USA,pp. 25697–25705.Cited by: §4.1.2, Table 4.\nZ. Ye, X. Zhu, C. Chan, X. Wang, X. Tan, J. Lei, Y. Peng, H. Liu, Y. Jin, Z. Dai, H. Lin, J. Chen, X. Du, L. Xue, Y. Chen, Z. Li, L. Xie, Q. Kong, Y. Guo, and W. Xue (2025b)\tLlasa: scaling train-time and inference-time compute for llama-based speech synthesis.CoRR abs/2502.04128.Cited by: §1, §4.1.2, Table 4, Table 5.\nN. Zeghidour, A. Luebs, A. Omran, J. Skoglund, and M. Tagliasacchi (2022)\tSoundStream: an end-to-end neural audio codec.IEEE ACM Trans. Audio Speech Lang. Process..Cited by: §1.\nB. Zhang, C. Guo, G. Yang, H. Yu, H. Zhang, H. Lei, J. Mai, J. Yan, K. Yang, M. Yang, et al. (2025a)\tMinimax-speech: intrinsic zero-shot text-to-speech with a learnable speaker encoder.arXiv preprint arXiv:2505.07916.Cited by: §1, §1, 2nd item, 5th item, Table 5.\nD. Zhang, G. Wang, J. Xue, K. Fang, L. Zhao, R. Ma, S. Ren, S. Liu, T. Guo, W. Zhuang, et al. (2025b)\tMiMo-audio: audio language models are few-shot learners.arXiv preprint arXiv:2512.23808.Cited by: Table 8.\nX. Zhang, D. Zhang, S. Li, Y. Zhou, and X. Qiu (2023a)\tSpeechTokenizer: unified speech tokenizer for speech large language models.CoRR abs/2308.16692.Cited by: §4.1.2, Table 4.\nX. Zhang, D. Zhang, S. Li, Y. Zhou, and X. Qiu (2023b)\tSpeechtokenizer: unified speech tokenizer for speech large language models.arXiv preprint arXiv:2308.16692.Cited by: §1.\nY. Zhou, X. Qin, Z. Jin, S. Zhou, S. Lei, S. Zhou, Z. Wu, and J. Jia (2024)\tVoxInstruct: expressive human instruction-to-speech generation with unified multilingual codec language modelling.In Proceedings of the 32nd ACM International Conference on Multimedia, MM 2024, Melbourne, VIC, Australia, 28 October 2024 - 1 November 2024, J. Cai, M. S. Kankanhalli, B. Prabhakaran, S. Boll, R. Subramanian, L. Zheng, V. K. Singh, P. César, L. Xie, and D. Xu (Eds.),pp. 554–563.Cited by: §1, Table 8.\nY. Zhou, G. Zeng, X. Liu, X. Li, R. Yu, Z. Wang, R. Ye, W. Sun, J. Gui, K. Li, Z. Wu, and Z. Liu (2025)\tVoxCPM: tokenizer-free TTS for context-aware speech generation and true-to-life voice cloning.CoRR abs/2509.24650.Cited by: Table 10.",
+    "graph": {
+      "summary": "The page explains the Qwen3-TTS series, a collection of multilingual, controllable, and robust text-to-speech models capable of real-time synthesis and streaming, with emphasis on voice cloning and fine-grained speech manipulation.",
+      "nodes": [
+        {
+          "id": "qwen3-tts",
+          "label": "Qwen3-TTS",
+          "type": "technology"
+        },
+        {
+          "id": "qwen-team",
+          "label": "Qwen Team",
+          "type": "org"
+        },
+        {
+          "id": "state-of-the-art",
+          "label": "State-of-the-Art",
+          "type": "concept"
+        },
+        {
+          "id": "voice-cloning",
+          "label": "Voice Cloning",
+          "type": "concept"
+        },
+        {
+          "id": "qwen-tts-tokenizer-12hz",
+          "label": "Qwen-TTS-Tokenizer-12Hz",
+          "type": "technology"
+        },
+        {
+          "id": "qwen-tts-tokenizer-25hz",
+          "label": "Qwen-TTS-Tokenizer-25Hz",
+          "type": "technology"
+        },
+        {
+          "id": "multilingual-speech",
+          "label": "Multilingual Speech",
+          "type": "concept"
+        },
+        {
+          "id": "text-to-speech",
+          "label": "Text-to-Speech",
+          "type": "concept"
+        },
+        {
+          "id": "automatic-speech-recognition",
+          "label": "Automatic Speech Recognition",
+          "type": "concept"
+        },
+        {
+          "id": "code2wav-module",
+          "label": "Code2Wav Module",
+          "type": "technology"
+        },
+        {
+          "id": "apache-2-license",
+          "label": "Apache 2.0 License",
+          "type": "concept"
+        },
+        {
+          "id": "seed-tts",
+          "label": "Seed-TTS",
+          "type": "product"
+        },
+        {
+          "id": "elevenlabs",
+          "label": "ElevenLabs",
+          "type": "org"
+        },
+        {
+          "id": "minimax",
+          "label": "MiniMax",
+          "type": "product"
+        },
+        {
+          "id": "streaming-speech-synthesis",
+          "label": "Streaming Speech Synthesis",
+          "type": "concept"
+        },
+        {
+          "id": "deep-learning",
+          "label": "Deep Learning",
+          "type": "concept"
+        },
+        {
+          "id": "advanced-natural-language-processing",
+          "label": "Advanced NLP",
+          "type": "concept"
+        },
+        {
+          "id": "long-speech",
+          "label": "Long Speech",
+          "type": "concept"
+        },
+        {
+          "id": "language-models",
+          "label": "Language Models",
+          "type": "concept"
+        }
+      ],
+      "edges": [
+        {
+          "source": "qwen3-tts",
+          "target": "qwen-team",
+          "label": "developed by"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "voice-cloning",
+          "label": "supports"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "multilingual-speech",
+          "label": "generates"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "state-of-the-art",
+          "label": "achieves"
+        },
+        {
+          "source": "qwen-tts-tokenizer-12hz",
+          "target": "qwen3-tts",
+          "label": "used in"
+        },
+        {
+          "source": "qwen-tts-tokenizer-25hz",
+          "target": "qwen3-tts",
+          "label": "used in"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "text-to-speech",
+          "label": "is a type of"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "streaming-speech-synthesis",
+          "label": "enables"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "seed-tts",
+          "label": "outperforms"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "apache-2-license",
+          "label": "released under"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "long-speech",
+          "label": "capable of generating"
+        },
+        {
+          "source": "automatic-speech-recognition",
+          "target": "qwen-tts-tokenizer-25hz",
+          "label": "used for training"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "elevenlabs",
+          "label": "compared with"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "minimax",
+          "label": "compared with"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "deep-learning",
+          "label": "utilizes"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "advanced-natural-language-processing",
+          "label": "incorporates"
+        },
+        {
+          "source": "qwen-tts-tokenizer-12hz",
+          "target": "code2wav-module",
+          "label": "integrates with"
+        },
+        {
+          "source": "qwen3-tts",
+          "target": "language-models",
+          "label": "aligns with"
+        }
+      ]
+    },
+    "created": "2026-05-31T14:24:02"
+  },
+  {
+    "id": "80cb29c16e9d",
+    "url": "https://www.bbc.com/news/articles/c5y01pdqvkgo",
+    "title": "Israel and Lebanon agree to implement ceasefire if Hezbollah stops attacks",
+    "text": "ADVERTISEMENT\nIsrael and Lebanon agree to implement ceasefire if Hezbollah stops attacks\n5 hours ago\nShare\nSave\nAdd as preferred on Google\nDavid GrittenandHelen Sullivan\n1:50\nWatch: Lebanon-Israel ceasefire deal made in 'hope rather than expectation'\n\nIsrael and Lebanon have agreed to renew their fragile ceasefire and create a number of \"pilot\" security zones inside Lebanon in which Hezbollah operatives would be banned, the US state department has announced.\n\nA joint statement said the agreement was \"contingent on a complete cessation\" of attacks by the Iran-backed armed group Hezbollah, among other conditions.\n\nThe three countries also \"rejected any attempt, by any state or non-state actor, to hold Lebanon's future hostage\".\n\nThe agreement was announced in Washington on Wednesday, after Israeli strikes killed at least nine people in southern Lebanon and Hezbollah fired rockets into northern Israel.\n\nLebanese state media reported that Israeli strikes continued in the south of Lebanon on Thursday, with at least one strike causing casualties.\n\nHezbollah, a Shia Muslim militia, political party and social movement, is Lebanon's most powerful group. With support from Iran, it has built an armed force more formidable than the Lebanese army and has fought a series of conflicts with Israel. It is designated as a terrorist organisation by Israel and many other countries, including the UK and US.\n\nThe agreement between Israel and Lebanon, reached after a fourth round of US-mediated talks, is contingent on the \"evacuation of all [Hezbollah] operatives\" from an area between the Israeli border and the Litani river, about 30km (19 miles) to the north, which is currently occupied by Israeli ground forces.\n\nIt said the US would help guide the creation of \"pilot zones in which the Lebanese Armed Forces will take exclusive control of the territory to the exclusion of all non-state actors\".\n\nADVERTISEMENT\nADVERTISEMENT\n\nIt did not include any maps to indicate where the pilot zones would be located, or any explanation of how they might work in practice.\n\nThe agreement followed a partial ceasefire announced on Monday, which Lebanon said would see Israel refrain from bombing the Lebanese capital, Beirut, in exchange for Hezbollah not attacking Israel.\n\nThe two countries' representatives will meet again on 22 June to hold further talks \"with a view toward reaching a comprehensive agreement\".\n\nHezbollah told the BBC that it would comment officially in due course.\n\nFar-right Israeli National Security Minister Itamar Ben-Gvir branded the agreement a \"serious mistake\", claiming it would allow Hezbollah to \"grow stronger\".\n\nLebanon was drawn into the war between the US, Israel and Iran on 2 March, when Hezbollah launched rockets into Israel in retaliation for an Israeli strike that killed Iran's supreme leader. Israel responded with an air campaign across Lebanon and a ground invasion in the south.\n\nA US-brokered ceasefire between Israel and Lebanon on 16 April failed to stop the fighting, and last week Prime Minister Benjamin Netanyahu ordered the Israeli military to intensify its strikes on Hezbollah and advance deeper into Lebanon in response to drone and rocket attacks on communities in northern Israel.\n\nADVERTISEMENT\n\nAt least 3,516 people have been killed in Lebanon since the start of the war, according to the country's health ministry. Its figures do not distinguish between combatants and civilians.\n\nThe UN says more than one million people have also registered themselves as displaced in Lebanon, where Israeli evacuation orders cover more than an eighth of the country.\n\nIsrael says 26 of its soldiers and four Israeli civilians have been killed on both sides of the border during the war.\n\nReuters\nSmoke billows from the Nabatieh area in southern Lebanon following an Israeli strike on Wednesday\n\nLebanese media reported Israeli strikes across the south of the country on Wednesday.\n\nThe health ministry said four Syrians and two Palestinians were killed in a strike in the al-Housh area, which is just south of the coastal city of Tyre.\n\nThe ministry also said that two paramedics were killed and a third was seriously wounded when Israeli forces \"directly targeted an ambulance\" in the Chehour area, which is about 14km (9 miles) to the east. The ambulance belonged to the Risala Scouts Association, which is affiliated with the Amal movement, an ally of Hezbollah.\n\nThe ministry accused the Israeli military of \"demonstrating contempt for international humanitarian law\", which specifically protects medical personnel.\n\nADVERTISEMENT\n\nAt least 128 paramedics and healthcare workers have been killed in Israeli attacks on ambulances and medical facilities over the past three months, according to the ministry.\n\nThere was no immediate comment from the Israeli military. In the past, it has claimed that ambulances are being used for military purposes, without providing any evidence.\n\nThe Lebanese army, meanwhile, said that one of its soldiers was killed in an Israeli air strike on the road between Nabatieh and Kfar Tebnit, about 27km north-east of Tyre. Lebanon's state-run National News Agency (NNA) reported that his motorbike was targeted by a drone.\n\nThe army said another two Lebanese soldiers were injured in a separate Israeli strike on their vehicle on the road between Deir Zahrani and Nabatieh.\n\nIt denounced what it called \"a pattern of deliberate strikes targeting army personnel, vehicles and positions\" by Israeli forces.\n\nNNA also reported an Israeli strike on a car on the busy coastal highway in the Khaldeh area, just south of Beirut. It did not mention any casualties, but security sources told Reuters news agency that two people were injured.\n\nIt was the closest strike to the capital since the partial ceasefire was announced.\n\nReuters\nA funeral was held on Wednesday in Wardaniyeh, southern Lebanon, for six members of the same family who were killed in an Israeli strike\n\nAlso on Wednesday, the Israeli military said it intercepted a \"hostile aircraft\" that crossed the border near the Manara and Kiryat Shmona areas, about 15km south of Nabatieh, as well as two projectiles that crossed in the nearby Misgav Am area.\n\nThe military did not immediately blame Hezbollah, but the group later said that \"in response to the Israeli enemy army's violation of the ceasefire\" its fighters targeted \"a gathering of Israeli enemy army soldiers\" in northern Israel with a rocket barrage.\n\nIsrael's leaders have warned that its military would resume strikes on the Hezbollah stronghold of Beirut's southern suburbs, known as Dahieh, if the group launched cross-border attacks on northern Israeli communities.\n\nAccording to the Lebanese government, the partial ceasefire agreed on Monday states that \"Israel will not launch a broad offensive on Beirut in exchange for Hezbollah refraining from launching attacks against Israel\".\n\nThe government said Hezbollah had confirmed its acceptance, but a member of the group's political council, Mahmoud Qamati, told the BBC on Tuesday: \"There was no ceasefire agreement, just the protection of Dahieh.\"\n\nQamati also insisted that Hezbollah would not abide by any commitments made at the Lebanese-Israeli talks in Washington.\n\n\"We think these negotiations do not concern us, nor do we recognise their findings or decisions, because we have rejected them on principle,\" he said.\n\nThe partial truce was announced by US President Donald Trump, who on Wednesday appeared to confirm a report that it was brokered after he had called Netanyahu \"crazy\" in an expletive-laden call prompted by the prime minister's order to bomb the Lebanese capital.\n\nTrump is said to be concerned that further escalation in Lebanon could jeopardise a wider deal to end the war between the US, Israel and Iran.\n\nIran has warned the US that any regional ceasefire must include Lebanon.\n\nIranian Foreign Minister Abbas Araghchi warned on Wednesday that if Israeli aggression against Beirut continued, its armed forces were \"fully prepared\" to resume the war, Iran's Tasnim news agency reported.\n\n'Crazy' phone call between Trump and Netanyahu complicates Iran talks\nIsrael strikes southern Lebanon but partial truce with Hezbollah appears to hold\nBowen: Trump needs this war to end but Iran is not backing down\nIsrael\nLebanon\nHezbollah\nRELATED\nIsraeli strikes kill 11 people in Gaza City, medics say\nDefiance in Beirut's Hezbollah stronghold during fragile ceasefire\n'Crazy' phone call between Trump and Netanyahu complicates Iran talks\nMORE FROM THE BBC\n2 days ago\nIsrael strikes southern Lebanon but partial truce with Hezbollah appears to hold\n\nIsrael continues its campaign in the south, though has not struck Beirut after a deal announced by the US.\n\n2 days ago\nClashes continue in Lebanon despite Israel and Hezbollah accepting US partial ceasefire plan\n\nA cessation of hostilities between Israel and Hezbollah is seen as crucial to the peace process with Iran.\n\n3 days ago\nIsrael PM orders strikes on Beirut suburbs as Hezbollah conflict escalates\n\nThousands flee the Hezbollah stronghold of Dahieh after Benjamin Netanyahu says it will be targeted in response to attacks on Israeli civilians.\n\n4 days ago\nIsrael seizes castle in Lebanon as it expands ground offensive\n\nPrime Minister Benjamin Netanyahu calls the capture of the strategic fortress a \"decisive shift\" in Israel's campaign against Hezbollah, as European governments criticise the escalation.\n\n7 days ago\nIsrael intensifies strikes on Lebanon during ceasefire, videos show\n\nVerified videos show strikes on densely populated neighbourhoods in southern Lebanon.",
+    "graph": {
+      "summary": "Israel and Lebanon have agreed to a conditional ceasefire with pilot security zones in Lebanon, contingent on Hezbollah ceasing attacks, following US-mediated talks.",
+      "nodes": [
+        {
+          "id": "israel",
+          "label": "Israel",
+          "type": "place"
+        },
+        {
+          "id": "lebanon",
+          "label": "Lebanon",
+          "type": "place"
+        },
+        {
+          "id": "hezbollah",
+          "label": "Hezbollah",
+          "type": "org"
+        },
+        {
+          "id": "us",
+          "label": "United States",
+          "type": "place"
+        },
+        {
+          "id": "aston-nsa",
+          "label": "Aston NSA",
+          "type": "concept"
+        },
+        {
+          "id": "us-state-department",
+          "label": "US State Department",
+          "type": "org"
+        },
+        {
+          "id": "iran",
+          "label": "Iran",
+          "type": "place"
+        },
+        {
+          "id": "benjamin-netanyahu",
+          "label": "Benjamin Netanyahu",
+          "type": "person"
+        },
+        {
+          "id": "itamar-ben-gvir",
+          "label": "Itamar Ben-Gvir",
+          "type": "person"
+        },
+        {
+          "id": "beirut",
+          "label": "Beirut",
+          "type": "place"
+        },
+        {
+          "id": "litani-river",
+          "label": "Litani River",
+          "type": "place"
+        },
+        {
+          "id": "lebanese-armed-forces",
+          "label": "Lebanese Armed Forces",
+          "type": "org"
+        },
+        {
+          "id": "donald-trump",
+          "label": "Donald Trump",
+          "type": "person"
+        },
+        {
+          "id": "abbas-araghchi",
+          "label": "Abbas Araghchi",
+          "type": "person"
+        },
+        {
+          "id": "dahieh",
+          "label": "Dahieh",
+          "type": "place"
+        },
+        {
+          "id": "lebanon-israel-ceasefire-deal",
+          "label": "Lebanon-Israel Ceasefire Deal",
+          "type": "event"
+        },
+        {
+          "id": "northern-israel",
+          "label": "Northern Israel",
+          "type": "place"
+        },
+        {
+          "id": "risala-scouts-association",
+          "label": "Risala Scouts Association",
+          "type": "org"
+        },
+        {
+          "id": "amal-movement",
+          "label": "Amal Movement",
+          "type": "org"
+        }
+      ],
+      "edges": [
+        {
+          "source": "israel",
+          "target": "lebanon",
+          "label": "agreed on ceasefire"
+        },
+        {
+          "source": "hezbollah",
+          "target": "lebanon-israel-ceasefire-deal",
+          "label": "contingent on stopping attacks"
+        },
+        {
+          "source": "us-state-department",
+          "target": "lebanon-israel-ceasefire-deal",
+          "label": "announced"
+        },
+        {
+          "source": "us",
+          "target": "lebanon-israel-ceasefire-deal",
+          "label": "mediated talks"
+        },
+        {
+          "source": "israel",
+          "target": "hezbollah",
+          "label": "designates as terrorist"
+        },
+        {
+          "source": "iran",
+          "target": "hezbollah",
+          "label": "supports"
+        },
+        {
+          "source": "litani-river",
+          "target": "lebanese-armed-forces",
+          "label": "areas controlled"
+        },
+        {
+          "source": "benjamin-netanyahu",
+          "target": "israel",
+          "label": "prime minister"
+        },
+        {
+          "source": "itamar-ben-gvir",
+          "target": "lebanon-israel-ceasefire-deal",
+          "label": "criticized"
+        },
+        {
+          "source": "beirut",
+          "target": "lebanon",
+          "label": "capital"
+        },
+        {
+          "source": "donald-trump",
+          "target": "lebanon-israel-ceasefire-deal",
+          "label": "announced partial truce"
+        },
+        {
+          "source": "abbas-araghchi",
+          "target": "iran",
+          "label": "foreign minister"
+        },
+        {
+          "source": "dahieh",
+          "target": "hezbollah",
+          "label": "stronghold"
+        },
+        {
+          "source": "lebanese-armed-forces",
+          "target": "lebanon",
+          "label": "authorized military force"
+        },
+        {
+          "source": "risala-scouts-association",
+          "target": "amal-movement",
+          "label": "affiliated with"
+        },
+        {
+          "source": "risala-scouts-association",
+          "target": "hezbollah",
+          "label": "allied"
+        },
+        {
+          "source": "lebanese-armed-forces",
+          "target": "dahieh",
+          "label": "current ceasefire location"
+        },
+        {
+          "source": "northern-israel",
+          "target": "israel",
+          "label": "affected region"
+        },
+        {
+          "source": "lebanon-israel-ceasefire-deal",
+          "target": "dahieh",
+          "label": "protection agreed"
+        },
+        {
+          "source": "israel",
+          "target": "northern-israel",
+          "label": "region in conflict"
+        }
+      ]
+    },
+    "created": "2026-06-04T21:37:27"
   }
 ]

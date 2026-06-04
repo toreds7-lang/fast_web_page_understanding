@@ -1,0 +1,7 @@
+Page title: [[TITLE]]
+
+Page content (your only source):
+[[TEXT]]
+
+---
+Question: [[QUESTION]]

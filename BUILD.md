@@ -42,7 +42,16 @@ The build uses **PyInstaller** in one-file mode. `prompts/` and `env.txt` are
    ```powershell
    Copy-Item env.txt dist\
    Copy-Item -Recurse prompts dist\
+   Copy-Item -Recurse static dist\
+   Copy-Item graph.html dist\
+   Copy-Item review.html dist\
    ```
+
+   - `static\` holds `vis-network.min.js`, the offline library that renders the
+     knowledge graph. **If it is missing, the graph page loads blank** (chat
+     still works) because the script 404s — see [Troubleshooting](#troubleshooting).
+   - `graph.html` / `review.html` are the pages served at `/graph` and
+     `/review`; [serve.py](serve.py) loads them from the exe's directory.
 
 3. The distributable `dist\` folder now looks like:
 
@@ -50,7 +59,10 @@ The build uses **PyInstaller** in one-file mode. `prompts/` and `env.txt` are
    dist/
    ├── web_playground.exe   the executable
    ├── env.txt              API key / model config (edit this)
-   └── prompts/             prompt templates (edit these)
+   ├── prompts/             prompt templates (edit these)
+   ├── static/              vis-network.min.js (graph rendering)
+   ├── graph.html           knowledge-graph page (/graph)
+   └── review.html          spaced-repetition page (/review)
    ```
 
 ## Run
@@ -72,9 +84,9 @@ curl http://127.0.0.1:8766/api/health   # -> {"status":"ok"}
 
 ## Distribute
 
-Ship the **entire `dist\` folder** (exe + `env.txt` + `prompts/`). The recipient
-edits `env.txt` with their own `OPENAI_API_KEY` and runs the exe. No Python
-install required.
+Ship the **entire `dist\` folder** (exe + `env.txt` + `prompts/` + `static/` +
+`graph.html` + `review.html`). The recipient edits `env.txt` with their own
+`OPENAI_API_KEY` and runs the exe. No Python install required.
 
 ## Why `prompts/` and `env.txt` stay external
 
@@ -110,6 +122,13 @@ Remove-Item -Recurse -Force build, dist, web_playground.spec
   the exe and contains a valid `OPENAI_API_KEY`.
 - **`prompts/...` not found** — ensure the `prompts\` folder sits next to the
   exe (step 2), not only in the source tree.
+- **Knowledge graph loads blank (chat still works)** — the graph page's
+  `GET /static/vis-network.min.js` returns **404**. Copy the `static\` folder
+  next to the exe (step 2) and **restart** the server — the static route is only
+  wired up at startup. The graph silently fails because `vis` is undefined when
+  the script is missing.
+- **`graph.html` / `review.html` not found (404 at `/graph` or `/review`)** —
+  copy these pages next to the exe (step 2).
 - **Antivirus flags the exe** — PyInstaller one-file binaries are sometimes
   false-positived; the unpacked `build\` artifacts and source remain available
   for inspection.

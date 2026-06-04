@@ -18,7 +18,6 @@ from fastapi.responses import (
     PlainTextResponse,
     StreamingResponse,
 )
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import ai
@@ -249,9 +248,25 @@ def build_app() -> FastAPI:
         return FileResponse(path)
 
     # Serve vendored assets (vis-network.min.js) for the graph page, offline.
-    _static_dir = _BASE_DIR / "static"
-    if _static_dir.is_dir():
-        app.mount("/static", StaticFiles(directory=_static_dir), name="static")
+    # Search several candidate locations so this works both when run from
+    # source and when frozen (where "static" may sit next to the exe or be
+    # bundled into the PyInstaller temp dir). An explicit route is used rather
+    # than only StaticFiles.mount so a missing folder at startup can't silently
+    # leave the graph page with no script (it would render blank).
+    _static_candidates = [
+        _BASE_DIR / "static",
+        Path(__file__).parent / "static",
+        Path(getattr(sys, "_MEIPASS", _BASE_DIR)) / "static",
+    ]
+
+    @app.get("/static/{asset}")
+    def static_asset(asset: str) -> FileResponse:
+        for base in _static_candidates:
+            path = (base / asset).resolve()
+            # Guard against path traversal: the resolved file must stay inside.
+            if base in path.parents and path.is_file():
+                return FileResponse(path)
+        raise HTTPException(404, f"static asset not found: {asset}")
 
     @app.get("/api/health")
     def api_health() -> dict:

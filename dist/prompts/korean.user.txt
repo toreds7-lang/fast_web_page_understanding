@@ -1,0 +1,7 @@
+Give the Korean meaning (한국어 뜻) of the selected word/phrase as it is used in this context.
+
+Text before: {before}
+Selected: {word}
+Text after: {after}
+
+Write the Korean gloss.
