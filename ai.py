@@ -181,3 +181,48 @@ def graph_chat_stream(question: str, text: str, title: str) -> Iterator[str]:
         {"role": "system", "content": _load("graph_chat.system.txt")},
         {"role": "user", "content": user},
     ])
+
+
+# ── Study guide + Ask tutor (side panel) ──────────────────────────────────────
+# Like the graph helpers, these use ``[[TOKEN]]`` substitution because the page
+# text can contain ``{`` / ``}`` braces. Both are stateless: the side panel sends
+# the page text with each request (cheap over local loopback), so no storage is
+# needed. The tutor also carries a short conversation history for follow-ups.
+
+
+def study_guide_stream(title: str, text: str) -> Iterator[str]:
+    """Stream a learner-oriented study guide for a page, grounded in its text."""
+    user = _fill(_load("study.user.txt"), TITLE=title.strip() or "(untitled)", TEXT=_clip(text))
+    return llm_client.stream_messages([
+        {"role": "system", "content": _load("study.system.txt")},
+        {"role": "user", "content": user},
+    ])
+
+
+def _format_history(history: list[dict[str, Any]] | None, n_pairs: int = 4) -> str:
+    """Render the last ``n_pairs`` user/assistant turns as plain ``You:`` /
+    ``Tutor:`` lines. Returns an empty marker when there is no prior turn."""
+    turns = [t for t in (history or []) if str(t.get("content", "")).strip()]
+    turns = turns[-(n_pairs * 2):]
+    if not turns:
+        return "(no previous messages)"
+    lines = []
+    for t in turns:
+        who = "You" if str(t.get("role", "")).lower() == "user" else "Tutor"
+        lines.append(f"{who}: {str(t.get('content', '')).strip()}")
+    return "\n".join(lines)
+
+
+def tutor_stream(
+    question: str, text: str, title: str, history: list[dict[str, Any]] | None = None
+) -> Iterator[str]:
+    """Stream a tutor's answer to a question about the page, with follow-up context."""
+    user = _fill(
+        _load("tutor.user.txt"),
+        TITLE=title.strip() or "(untitled)", TEXT=_clip(text),
+        HISTORY=_format_history(history), QUESTION=question.strip(),
+    )
+    return llm_client.stream_messages([
+        {"role": "system", "content": _load("tutor.system.txt")},
+        {"role": "user", "content": user},
+    ])

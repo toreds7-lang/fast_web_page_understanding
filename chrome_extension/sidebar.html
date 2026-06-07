@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study guide & Tutor</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #1f2937; background: #f9fafb;
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    font-size: 14px;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────────────── */
+  header {
+    flex-shrink: 0; padding: 12px 14px 0;
+    background: #fff; border-bottom: 1px solid #e5e7eb;
+  }
+  .h-top { display: flex; align-items: center; gap: 8px; }
+  .h-top h1 { color: #4f46e5; font-size: 15px; margin: 0; flex: 1; white-space: nowrap; }
+  .page-line {
+    display: flex; align-items: center; gap: 8px; margin: 8px 0 10px;
+    color: #6b7280; font-size: 12px;
+  }
+  .page-line .title {
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .icon-btn {
+    border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer;
+    color: #4f46e5; font-size: 12px; padding: 3px 9px; border-radius: 7px;
+    line-height: 1.4; font-family: inherit; flex-shrink: 0;
+  }
+  .icon-btn:hover { background: #f3f4f6; }
+  .icon-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ── Tabs ────────────────────────────────────────────────────────────── */
+  .tabs { display: flex; gap: 2px; }
+  .tab {
+    border: none; background: none; cursor: pointer; font-family: inherit;
+    font-size: 13px; font-weight: 600; color: #9ca3af; padding: 8px 12px;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+
+  /* ── Panels ──────────────────────────────────────────────────────────── */
+  .panel { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+  .panel.active { display: flex; }
+
+  /* Study guide */
+  .study-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0;
+  }
+  .study-bar .spacer { flex: 1; }
+  #studyContent { flex: 1; overflow-y: auto; padding: 14px; line-height: 1.6; }
+  #studyContent h1, #studyContent h2, #studyContent h3 { font-size: 14px; }
+
+  /* Markdown-ish styling shared by study guide + chat */
+  .md p { margin: 0 0 8px; }
+  .md strong { color: #111827; }
+  .md code {
+    background: #f3f4f6; padding: 1px 5px; border-radius: 3px;
+    font-size: 12px; font-family: monospace;
+  }
+
+  /* Tutor chat */
+  #log { flex: 1; overflow-y: auto; padding: 14px; }
+  .msg { margin-bottom: 14px; line-height: 1.55; }
+  .msg .who {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    color: #9ca3af; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .msg .who .spk {
+    border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer;
+    font-size: 11px; padding: 0 5px; border-radius: 5px; line-height: 1.5;
+    color: #4f46e5;
+  }
+  .msg.user .bubble {
+    background: #eef2ff; color: #3730a3; border-radius: 12px;
+    padding: 8px 11px; display: inline-block; white-space: pre-wrap;
+  }
+  .msg.bot .bubble { color: #1f2937; }
+  .empty { color: #9ca3af; font-size: 13px; text-align: center; margin-top: 24px; }
+
+  .chat-in {
+    display: flex; gap: 8px; padding: 12px; border-top: 1px solid #f3f4f6;
+    flex-shrink: 0; background: #fff;
+  }
+  .chat-in input {
+    flex: 1; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none;
+  }
+  .chat-in input:focus { border-color: #a5b4fc; }
+  .chat-in button {
+    border: none; border-radius: 10px; padding: 0 16px; cursor: pointer;
+    background: #4f46e5; color: #fff; font-weight: 600; font-size: 14px;
+    font-family: inherit;
+  }
+  .chat-in button:disabled { opacity: .5; cursor: default; }
+
+  .hint { color: #9ca3af; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="h-top">
+    <h1>📚 Study & Tutor</h1>
+  </div>
+  <div class="page-line">
+    <span class="title" id="pageTitle">No page loaded</span>
+    <button class="icon-btn" id="reload" title="Re-read the active tab">↻ Reload page</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tabStudy" data-panel="study">📋 Study guide</button>
+    <button class="tab" id="tabTutor" data-panel="tutor">💬 Ask tutor</button>
+  </div>
+</header>
+
+<!-- Study guide panel -->
+<section class="panel active" id="panelStudy">
+  <div class="study-bar">
+    <button class="icon-btn" id="speakStudy" title="Read aloud (browser voice)">🔊 Read aloud</button>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="regen" title="Generate again">↻ Regenerate</button>
+  </div>
+  <div id="studyContent" class="md">
+    <div class="empty">Open a normal web page, then click <b>↻ Reload page</b>.</div>
+  </div>
+</section>
+
+<!-- Tutor panel -->
+<section class="panel" id="panelTutor">
+  <div id="log"><div class="empty">Ask anything about the page — e.g. "What's the main idea?" or "Explain this grammar."</div></div>
+  <div class="chat-in">
+    <input id="q" type="text" placeholder="Ask the tutor…" autocomplete="off">
+    <button id="send">Send</button>
+  </div>
+</section>
+
+<script src="sidebar.js"></script>
+</body>
+</html>

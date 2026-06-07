@@ -1,0 +1,4 @@
+Page title: [[TITLE]]
+
+Page content:
+[[TEXT]]

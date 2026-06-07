@@ -424,6 +424,7 @@ const SHORTCUTS = [
   ['Ctrl + R',       'Rewrite in simpler English'],
   ['Ctrl + P',       'Pronounce aloud · press again to stop'],
   ['Ctrl + Shift + K', 'Build a knowledge graph of the page'],
+  ['Ctrl + Shift + S', 'Open the Study guide & Tutor side panel'],
   ['Esc',            'Close the popup'],
   ['F1',             'Show / hide this help'],
 ];
@@ -577,8 +578,14 @@ document.addEventListener('keydown', (e) => {
 // Ctrl+K is a browser-reserved shortcut (focus the address bar), so a page-level
 // keydown handler can't override it. Instead it's registered as an extension
 // command in manifest.json; the background worker forwards it here as a message.
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg && msg.action === 'build-graph') buildGraph();
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (!msg) return;
+  if (msg.action === 'build-graph') { buildGraph(); return; }
+  // The Study guide & Tutor side panel asks the active tab for its readable text.
+  if (msg.action === 'get-page-text') {
+    sendResponse({ text: getPageText(), title: document.title, url: location.href });
+    return true;  // keep the channel open for the response
+  }
 });
 
 // Escape closes the popup.

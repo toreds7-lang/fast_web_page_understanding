@@ -17,9 +17,16 @@ next to your selection.
 
 ## Whole page (no selection)
 
-| Shortcut | Action | In the new tab |
-|----------|--------|----------------|
-| **Ctrl + Shift + K** | 🕸️ Build a knowledge graph of the page | click a node → entity summary · 💬 chat → ask about the page |
+| Shortcut | Action | Where |
+|----------|--------|-------|
+| **Ctrl + Shift + K** | 🕸️ Build a knowledge graph of the page | new tab: click a node → entity summary · 💬 chat → ask about the page |
+| **Ctrl + Shift + S** | 📚 Open the Study guide & Tutor side panel | side panel: 📋 study guide (auto) · 💬 ask tutor · 🔊 read aloud |
+
+The side panel also opens by clicking the extension's toolbar icon. It reads the
+current tab's text, auto-generates a learner **study guide** (main idea, key
+vocabulary, structure, what to focus on), and lets you **ask a tutor** questions
+about the page (the tutor uses the page plus general English teaching). **🔊 Read
+aloud** uses the browser's built-in voice — no server or API needed.
 
 ## Help
 
@@ -53,9 +60,8 @@ next to your selection.
   selected, the normal browser shortcut still works.
 - If your browser claims a key (e.g. **Ctrl + L**), rebind it in
   `chrome_extension/content_script.js` (the `switch (k)` block).
-- **Ctrl + Shift + K** is registered as an **extension command** (manifest
-  `commands`, handled by `background.js`) rather than a page key, because plain
-  Ctrl+K is reserved by the browser (address bar/search). Verify or rebind the
-  key at `chrome://extensions/shortcuts`.
+- **Ctrl + Shift + K** and **Ctrl + Shift + S** are registered as **extension
+  commands** (manifest `commands`, handled by `background.js`) rather than page
+  keys. Verify or rebind them at `chrome://extensions/shortcuts`.
 - LLM lookups need the backend running (`serve.py`, port 8766). **Ctrl + P**
   pronunciation works offline.

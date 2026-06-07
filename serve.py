@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 import ai
 import graph_store
+import page_store
 import store
 
 # Frozen-aware base dir (matches config.py / ai.py) for static files.
@@ -71,6 +72,45 @@ class GraphSummaryBody(BaseModel):
 class GraphChatBody(BaseModel):
     id: str
     question: str
+
+
+class PageBody(BaseModel):
+    text: str
+    title: str = ""
+    url: str = ""
+
+
+class StudyBody(BaseModel):
+    # Either reference a cached page (page_id) or send the text inline.
+    page_id: str = ""
+    text: str = ""
+    title: str = ""
+    url: str = ""
+
+
+class TutorBody(BaseModel):
+    page_id: str = ""
+    text: str = ""
+    question: str
+    title: str = ""
+    history: list[dict] = []
+
+
+def _resolve_page(page_id: str, text: str, title: str) -> tuple[str, str]:
+    """Return ``(text, title)`` for a study/tutor request.
+
+    Prefer the server-side page cache (so the full text isn't re-sent each turn):
+    if ``page_id`` is given but missing from the cache (server restart/eviction),
+    raise 404 so the side panel re-ingests and retries. Otherwise fall back to
+    inline ``text`` (and raise 400 if there's nothing to work with)."""
+    if page_id:
+        rec = page_store.get(page_id)
+        if rec is None:
+            raise HTTPException(404, "page not cached; re-ingest via /api/page")
+        return rec["text"], (rec.get("title") or title)
+    if text.strip():
+        return text, title
+    raise HTTPException(400, "text is empty")
 
 
 def build_app() -> FastAPI:
@@ -237,6 +277,37 @@ def build_app() -> FastAPI:
             raise HTTPException(400, "question is empty")
         return StreamingResponse(
             ai.graph_chat_stream(body.question, record["text"], record.get("title", "")),
+            media_type="text/plain; charset=utf-8",
+        )
+
+    # ── Study guide + Ask tutor (side panel) ─────────────────────────────────
+    # Stateless: the side panel sends the current page's text with each request,
+    # so no graph needs to be built first. The side panel runs in the extension
+    # origin (with host_permissions), so it can stream these directly.
+
+    @app.post("/api/page")
+    def api_page(body: PageBody) -> JSONResponse:
+        """Cache the page's text once; the side panel then references it by id."""
+        if not body.text.strip():
+            raise HTTPException(400, "text is empty")
+        pid = page_store.put(body.text, body.title, body.url)
+        return JSONResponse({"id": pid, "title": body.title, "url": body.url})
+
+    @app.post("/api/study")
+    def api_study(body: StudyBody) -> StreamingResponse:
+        text, title = _resolve_page(body.page_id, body.text, body.title)
+        return StreamingResponse(
+            ai.study_guide_stream(title, text),
+            media_type="text/plain; charset=utf-8",
+        )
+
+    @app.post("/api/tutor")
+    def api_tutor(body: TutorBody) -> StreamingResponse:
+        if not body.question.strip():
+            raise HTTPException(400, "question is empty")
+        text, title = _resolve_page(body.page_id, body.text, body.title)
+        return StreamingResponse(
+            ai.tutor_stream(body.question, text, title, body.history),
             media_type="text/plain; charset=utf-8",
         )
 

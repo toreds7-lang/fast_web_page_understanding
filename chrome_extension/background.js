@@ -17,7 +17,27 @@
  */
 const API = 'http://127.0.0.1:8766';
 
+// Clicking the toolbar icon opens the Study guide & Tutor side panel.
+chrome.runtime.onInstalled.addListener(() => {
+  if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+      .catch(() => {});
+  }
+});
+
 chrome.commands.onCommand.addListener((command) => {
+  // Ctrl+Shift+S → open the side panel for the active tab. This must happen in
+  // the command callback (a user gesture) for chrome.sidePanel.open() to work.
+  if (command === 'open-panel') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tab = tabs && tabs[0];
+      if (tab && tab.id != null && chrome.sidePanel && chrome.sidePanel.open) {
+        chrome.sidePanel.open({ tabId: tab.id }).catch(() => {});
+      }
+    });
+    return;
+  }
+
   if (command !== 'build-graph') return;
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs && tabs[0];

@@ -14,11 +14,20 @@ articles. Select text on any page and press a shortcut to get a simple-English
 | **Ctrl+R** | Rewrite in simpler English | a hard sentence/paragraph |
 | **Ctrl+P** | Pronounce aloud (browser text-to-speech, free) | anything |
 | **Ctrl+Shift+K** | Build a **knowledge graph** of the whole page (no selection) | any article |
+| **Ctrl+Shift+S** | Open the **Study guide & Tutor** side panel (no selection) | any article |
 
 Every popup (except simplify/pronounce) has a **☆ Save** button that adds the
 item to a review deck. Review at <http://127.0.0.1:8766/review> or export to Anki.
 Word popups (Define, Korean, Collocations) also have a **🔊** button that speaks
 the word aloud (same offline text-to-speech as Ctrl+P).
+
+**Ctrl+Shift+S** (or clicking the extension's toolbar icon) opens a **side panel**
+beside the page. It reads the current tab's text and gives you two tools: a
+**📋 study guide** that auto-summarizes the page for a learner (main idea, key
+vocabulary, structure, what to focus on), and a **💬 ask-tutor** chat that answers
+questions about the page and can also teach general English (grammar, vocabulary,
+examples). The **🔊 Read aloud** buttons use the browser's built-in voice — no
+server or API key needed.
 
 **Ctrl+Shift+K** needs no selection. It sends the page's main text to the backend,
 which asks the model to extract a knowledge graph (key entities + relationships),
@@ -42,6 +51,12 @@ Web page ──Ctrl+K──> content_script.getPageText ──POST /api/graph/bu
         └── new tab /graph?id=… (graph.html + static/vis-network.min.js)
               ├── click node ──POST /api/graph/summary──> streamed entity summary
               └── 💬 chat    ──POST /api/graph/chat────> streamed page Q&A
+
+Toolbar / Ctrl+Shift+S ──> side panel (sidebar.html) ──get-page-text──> content_script
+   panel ──POST /api/page (once)──> page_store (in-memory cache) ──> page_id
+   ├── 📋 study  ──POST /api/study {page_id}──> ai.study_guide_stream ──> guide
+   └── 💬 tutor  ──POST /api/tutor {page_id,history}──> ai.tutor_stream ──> answer
+        └── 🔊 Read aloud = browser speechSynthesis (no server call)
 ```
 
 - `content_script.js` captures the selection plus context. **Word** actions
@@ -56,6 +71,17 @@ Web page ──Ctrl+K──> content_script.getPageText ──POST /api/graph/bu
   knowledge-graph extraction (`graph.*`), node summary (`graph_summary.*`) and
   page chat (`graph_chat.*`) prompts. Graph routes live in `serve.py` under
   `/api/graph/*`, and `graph.html` is served at `/graph`.
+- The **side panel** (`chrome_extension/sidebar.html` + `sidebar.js`) is opened
+  by the toolbar action / `Ctrl+Shift+S`. It runs in the extension origin (with
+  `host_permissions`), so it streams `POST /api/study` and `/api/tutor` from the
+  local server directly. The panel pulls the page text once (via the content
+  script's `get-page-text` reply), caches it on the server with `POST /api/page`,
+  and then references it by `page_id` on every call — so the full text isn't
+  re-sent each turn (the tutor only sends `page_id` + a short conversation
+  history). `page_store.py` is an in-memory, content-hashed LRU cache; on a miss
+  (server restart/eviction) the study/tutor route returns 404 and the panel
+  re-ingests and retries. Prompts are `study.*` and `tutor.*`. Read-aloud uses
+  the browser's `speechSynthesis` only.
 - `store.py` persists saved cards to `saved.json` and schedules them with a
   simple SM-2 algorithm (grades: Again / Hard / Good / Easy).
 - `graph_store.py` persists built graphs (and their source text) to
@@ -72,6 +98,7 @@ web_play_ground/
 ├── ai.py                       # *_stream() prompt wrappers
 ├── store.py                    # saved-word storage + SM-2 spaced repetition
 ├── graph_store.py              # built knowledge graphs (graphs.json)
+├── page_store.py               # in-memory page-text cache for the side panel
 ├── serve.py                    # FastAPI: lookups + save/review + graph API
 ├── review.html                 # spaced-repetition review page
 ├── graph.html                  # interactive knowledge graph + chat popup
@@ -84,9 +111,13 @@ web_play_ground/
 │   ├── define.* / korean.* / explain.* / grammar.*
 │   ├── collocations.* / paraphrase.*
 │   ├── graph.* / graph_summary.* / graph_chat.*
+│   └── study.* / tutor.*       # side-panel study guide + tutor prompts
 └── chrome_extension/
     ├── manifest.json
     ├── content_script.js       # shortcuts → popup → stream, ☆ Save button
+    ├── background.js           # commands, side-panel open, local-server relay
+    ├── sidebar.html            # Study guide & Tutor side panel
+    ├── sidebar.js              # side-panel logic + browser read-aloud
     └── icons/
 ```
 

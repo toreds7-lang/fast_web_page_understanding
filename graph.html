@@ -156,6 +156,7 @@ function esc(s) {
 // Tiny Markdown → HTML for streamed answers.
 function md(text) {
   return '<p>' + esc(text)
+    .replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*$/gm, '<strong>$1</strong>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
