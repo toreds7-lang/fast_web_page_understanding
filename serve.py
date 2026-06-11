@@ -330,7 +330,7 @@ def build_app() -> FastAPI:
         Path(getattr(sys, "_MEIPASS", _BASE_DIR)) / "static",
     ]
 
-    @app.get("/static/{asset}")
+    @app.get("/static/{asset:path}")
     def static_asset(asset: str) -> FileResponse:
         for base in _static_candidates:
             path = (base / asset).resolve()

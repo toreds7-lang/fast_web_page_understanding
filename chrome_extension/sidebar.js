@@ -22,23 +22,12 @@ let studyText = '';         // plain text of the rendered study guide (for read-
 let history = [];           // [{ role: 'user'|'assistant', content }]
 let busy = false;           // a study/tutor stream is in flight
 
-// ── Helpers (markdown rendering, mirrors graph.html) ──────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
+// Markdown rendering (tables, math, Mermaid) lives in vendor/chat-render.js as
+// `ChatRender`, shared with graph.html.
 
 function esc(s) {
   return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function md(text) {
-  return '<p>' + esc(text)
-    // ATX headings (#, ##, …) → bold lines, so they render cleanly and don't get
-    // read aloud as "hash hash …".
-    .replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*$/gm, '<strong>$1</strong>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/^\s*[-*]\s+/gm, '• ')
-    .replace(/\n\n+/g, '</p><p>')
-    .replace(/\n/g, '<br>') + '</p>';
 }
 
 // ── Browser voice (Web Speech API only) ───────────────────────────────────────
@@ -134,9 +123,11 @@ async function streamInto(el, endpoint, extra) {
     const { done, value } = await reader.read();
     if (done) break;
     acc += dec.decode(value, { stream: true });
-    el.innerHTML = md(acc);
+    el.innerHTML = ChatRender.streamHtml(acc);   // fast pass while streaming
     el.scrollTop = el.scrollHeight;
   }
+  if (acc.trim()) ChatRender.renderFull(el, acc); // tables + math + diagrams
+  el.scrollTop = el.scrollHeight;
   return acc;
 }
 
@@ -220,6 +211,16 @@ const TUTOR_EMPTY =
 
 function resetTutor() { $('log').innerHTML = TUTOR_EMPTY; }
 
+// Clear the visible chat *and* the conversation context sent to the server, so
+// the next question starts a fresh thread (mirrors the graph chat's 🗑 button).
+function clearTutor() {
+  if (busy) return;
+  stopSpeaking();
+  history = [];
+  resetTutor();
+  $('q').focus();
+}
+
 function clearEmpty() {
   const e = $('log').querySelector('.empty');
   if (e) e.remove();
@@ -274,6 +275,7 @@ async function ask() {
 
 $('send').addEventListener('click', ask);
 $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+$('clearTutor').addEventListener('click', clearTutor);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 loadPage();
