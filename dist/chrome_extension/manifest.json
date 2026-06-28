@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "English Reading Helper",
-  "description": "Select text on any page: Ctrl+D define, Ctrl+Shift+D Korean, Ctrl+E explain, Ctrl+G grammar, Ctrl+L collocations, Ctrl+R simplify, Ctrl+P speak. Ctrl+Shift+K builds a knowledge graph of the page. Save words for spaced-repetition review.",
+  "description": "Select text on any page: Ctrl+D define, Ctrl+Shift+D Korean, Ctrl+E explain, Ctrl+G grammar, Ctrl+L collocations, Ctrl+R simplify, Ctrl+P speak. Ctrl+Shift+K builds a knowledge graph; Ctrl+Shift+S opens a Study guide & Tutor side panel. Save words for spaced-repetition review.",
   "version": "1.0",
 
   "icons": {
@@ -9,6 +9,8 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+
+  "permissions": ["sidePanel", "tabs"],
 
   "host_permissions": [
     "http://127.0.0.1:8766/*"
@@ -18,10 +20,22 @@
     "service_worker": "background.js"
   },
 
+  "action": {
+    "default_title": "Reading Helper — Study guide & Tutor"
+  },
+
+  "side_panel": {
+    "default_path": "sidebar.html"
+  },
+
   "commands": {
     "build-graph": {
       "suggested_key": { "default": "Ctrl+Shift+K" },
       "description": "Build a knowledge graph of the current page"
+    },
+    "open-panel": {
+      "suggested_key": { "default": "Ctrl+Shift+S" },
+      "description": "Open the Study guide & Tutor side panel"
     }
   },
 

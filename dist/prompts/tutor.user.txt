@@ -1,0 +1,10 @@
+Page title: [[TITLE]]
+
+Page content:
+[[TEXT]]
+
+=== Recent conversation ===
+[[HISTORY]]
+=== End conversation ===
+
+Question: [[QUESTION]]

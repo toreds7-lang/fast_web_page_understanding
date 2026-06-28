@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Knowledge Graph</title>
 <script src="/static/vis-network.min.js"></script>
+<!-- Rich chat rendering: tables (marked), math (KaTeX), diagrams (Mermaid). -->
+<link rel="stylesheet" href="/static/katex.min.css">
+<script src="/static/marked.min.js"></script>
+<script src="/static/purify.min.js"></script>
+<script src="/static/katex.min.js"></script>
+<script src="/static/katex-auto-render.min.js"></script>
+<script src="/static/mermaid.min.js"></script>
+<script src="/static/chat-render.js"></script>
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
@@ -84,6 +92,21 @@
     background: #f3f4f6; padding: 1px 5px; border-radius: 3px;
     font-size: 12px; font-family: monospace;
   }
+  .msg.bot pre {
+    background: #f3f4f6; padding: 10px 12px; border-radius: 8px;
+    overflow-x: auto; margin: 0 0 8px;
+  }
+  .msg.bot pre code { background: none; padding: 0; }
+  /* GFM tables */
+  .msg.bot table {
+    border-collapse: collapse; margin: 4px 0 10px; font-size: 13px;
+    display: block; overflow-x: auto; max-width: 100%;
+  }
+  .msg.bot th, .msg.bot td { border: 1px solid #e5e7eb; padding: 5px 9px; text-align: left; }
+  .msg.bot th { background: #f3f4f6; font-weight: 600; }
+  /* Mermaid diagrams */
+  .msg.bot .mermaid { margin: 4px 0 10px; text-align: center; }
+  .msg.bot .mermaid svg { max-width: 100%; height: auto; }
   .empty { color: #9ca3af; font-size: 13px; text-align: center; margin-top: 24px; }
   .chat-in {
     display: flex; gap: 8px; padding: 12px; border-top: 1px solid #f3f4f6;
@@ -151,17 +174,6 @@ let busy = false;
 
 function esc(s) {
   return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Tiny Markdown → HTML for streamed answers.
-function md(text) {
-  return '<p>' + esc(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/^\s*[-*]\s+/gm, '• ')
-    .replace(/\n\n+/g, '</p><p>')
-    .replace(/\n/g, '<br>') + '</p>';
 }
 
 async function loadGraph() {
@@ -307,10 +319,12 @@ async function streamInto(bubble, endpoint, body) {
       const { done, value } = await reader.read();
       if (done) break;
       acc += dec.decode(value, { stream: true });
-      bubble.innerHTML = md(acc);
+      bubble.innerHTML = ChatRender.streamHtml(acc);   // fast pass while streaming
       $('log').scrollTop = $('log').scrollHeight;
     }
     if (!acc.trim()) bubble.innerHTML = '<p><em>(no response)</em></p>';
+    else ChatRender.renderFull(bubble, acc);           // tables + math + diagrams
+    $('log').scrollTop = $('log').scrollHeight;
   } catch (e) {
     bubble.innerHTML = '<p style="color:#dc2626">⚠️ ' + esc(e.message) +
       '<br><small>Is the server running with a valid API key?</small></p>';
